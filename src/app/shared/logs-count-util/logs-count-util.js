@@ -1,0 +1,3 @@
+const LOGS_STEP_COUNT = 30;
+
+export {LOGS_STEP_COUNT};
