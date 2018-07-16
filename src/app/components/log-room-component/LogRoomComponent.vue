@@ -3,14 +3,14 @@
     <el-row>
       <el-button type="primary" size="medium" plain @click="postNewLog">Post New log</el-button>
     </el-row>
-    <el-row>
-      <el-button type="success" size="medium" plain @click="postLogsRecursively">Post 10 logs</el-button>
-    </el-row>
-    <el-row>
-      <el-button type="warning" size="medium" plain @click="getFewMoreLogsFromBuffer">Get few Logs from buffer</el-button>
-    </el-row>
+    <!--<el-row>-->
+      <!--<el-button type="success" size="medium" plain @click="postLogsRecursively">Post 400 logs</el-button>-->
+    <!--</el-row>-->
+    <!--<el-row>-->
+      <!--<el-button type="warning" size="medium" plain @click="getFewMoreLogsFromBuffer">Get few Logs from buffer</el-button>-->
+    <!--</el-row>-->
     <div>
-      <p v-for="log in logsData">{{log.content}} -- {{log.id}}</p>
+      <p v-for="log in logsData" :key="log.id">{{log.content}} -- {{log.id}} -- {{log.session_related}}</p>
     </div>
   </div>
 </template>
@@ -36,12 +36,13 @@
         'getLazyLogsFromBuffer'
       ]),
       postNewLog() {
-        httpWrapper.postNewLog(newLogData => {
-          this.setNewLogAction({logData: newLogData});
-        });
+        // httpWrapper.postNewLog(newLogData => {
+        //   this.setNewLogAction({logData: newLogData});
+        // });
+        httpWrapper.getDockerConnected();
       },
       postLogsRecursively() {
-        if (this.step < 200) {
+        if (this.step < 400) {
           this.step++;
           this.postNewLog();
           setTimeout(() => {

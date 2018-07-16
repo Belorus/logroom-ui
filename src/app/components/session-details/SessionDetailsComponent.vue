@@ -32,7 +32,7 @@
 
   export default {
     props: {
-      sessionId: Number
+      sessionId: String
     },
     computed: {
       ...mapGetters({
