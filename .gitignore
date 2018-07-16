@@ -6,3 +6,4 @@ npm-debug.log
 /dist/
 /vendor
 *.log
+package-lock.json
