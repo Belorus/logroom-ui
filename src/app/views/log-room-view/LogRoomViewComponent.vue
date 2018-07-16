@@ -7,10 +7,10 @@
       <sidebar-component :sessionId="currentSessionId"></sidebar-component>
       <div class="content_wrapper">
         <div class="content_inner" ref="scrollableInner">
-          <log-room :logsData="logsData"></log-room>
-          <!--<transition-group name="list">-->
-            <!--<p v-for="(log, index) in revercedLogs" :key="index" class="list-item">{{index}}: {{log.message}}</p>-->
-          <!--</transition-group>-->
+          <!--<log-room :logsData="logsData"></log-room>-->
+          <transition-group name="list">
+            <p v-for="(log, index) in revercedLogs" :key="index" class="list-item">{{index}}: {{log.message}}</p>
+          </transition-group>
         </div>
       </div>
     </div>
