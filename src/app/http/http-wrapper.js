@@ -1,6 +1,6 @@
 import axios from "axios/index";
 
-const BASE_URL = 'http://10.61.20.56:8080/push_log';
+const BASE_URL = 'http://10.61.20.89:8080/push_log';
 
 const BASE_JSDB_URL = "http://localhost:3000/";
 const DIVIDER = "/";
@@ -10,24 +10,19 @@ const LOGS = "logs";
 class HttpWrapperClass {
   getDockerConnected() {
     let dataObj = {
-      session_id: "4b7b047a-2f30-46e1-8e21-989a32cb5037",
-      seq_number: 1,
+      session_id: "4b7b047a-2f30-46e1-8e21-989a32cb5038",
+      seq_number: 19,
       log: {
         categories: [],
         level: "INFO ",
-        message: ">>> LogManager initialized successfully. UTC time: Thu, 03 May 2018 13:03:56 GMT",
+        message: ">>> LogManager initialized successfully. UTC time: Right Now!",
         tag: "XLog.LogManager",
         thread: 4,
         timestamp: Date.now()
       }
     };
     axios
-      .post(BASE_URL,
-        {
-          headers: {'Content-Type': 'text/plain'},
-          params: {dataObj}
-        }
-      )
+      .post(BASE_URL, dataObj)
       .then((response) => {
         console.log(response);
       })

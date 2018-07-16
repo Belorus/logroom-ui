@@ -5,6 +5,7 @@ const ADD_NEW_LOG_TO_SESSION = 'addNewLogToSession';
 const SET_ACTIVE_SESSION = 'setActiveSession';
 const SET_BUFFER_LOGS = 'setBufferLogs';
 const ADD_PARTIAL_LOG_PL = 'addPartialLogs';
+const BACKWARD_ADD_PARTIAL_LOG_PL = 'backwardAddPartialLogs';
 
 export {
   ADD_SESSION,
@@ -13,5 +14,6 @@ export {
   ADD_NEW_LOG_TO_SESSION,
   SET_ACTIVE_SESSION,
   SET_BUFFER_LOGS,
-  ADD_PARTIAL_LOG_PL
+  ADD_PARTIAL_LOG_PL,
+  BACKWARD_ADD_PARTIAL_LOG_PL
 };

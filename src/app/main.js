@@ -7,6 +7,9 @@ import 'element-ui/lib/theme-chalk/index.css';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 
+import VueSocketio from "vue-socket.io";
+import socketio from 'socket.io-client';
+
 import {routes} from "./router/routes";
 import {storage} from './store/index'
 
@@ -15,6 +18,9 @@ import App from './App';
 Vue.use(ElementUI);
 Vue.use(VueRouter);
 Vue.use(Vuex);
+
+export const SocketInstance = socketio('ws://localhost:9861');
+Vue.use(VueSocketio, SocketInstance);
 
 const router = new VueRouter({
   routes

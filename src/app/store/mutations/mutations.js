@@ -5,7 +5,7 @@ import {
   SET_BUFFER_LOGS,
   SET_ACTIVE_SESSION,
   ADD_NEW_LOG_TO_SESSION,
-  ADD_PARTIAL_LOG_PL
+  ADD_PARTIAL_LOG_PL, BACKWARD_ADD_PARTIAL_LOG_PL
 } from "./mutation-types";
 
 const mutations = {
@@ -26,6 +26,12 @@ const mutations = {
   },
   [ADD_PARTIAL_LOG_PL](state, payload) {
     payload.map(log => state.sessionLogs.push(log));
+  },
+  [BACKWARD_ADD_PARTIAL_LOG_PL](state, payload) {
+    console.log('BACKWARD_ADD_PARTIAL_LOG_PL: ', payload);
+    let resLogs = [];
+    payload.map(log => resLogs.push(log));
+    state.sessionLogs = resLogs.concat(state.sessionLogs);
   },
   [SET_ACTIVE_SESSION](state, payload) {
     state.activeSessionId = payload.sessionId;

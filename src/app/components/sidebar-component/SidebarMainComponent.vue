@@ -21,7 +21,7 @@
       'session-details':SessionDetailsComponent
     },
     props: {
-      sessionId: Number
+      sessionId: String
     }
   }
 </script>

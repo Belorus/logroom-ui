@@ -38,7 +38,9 @@
     "element-ui": "^2.4.1",
     "lodash": "^4.17.10",
     "reset-css": "^2.2.1",
+    "socket.io-client": "^2.1.1",
     "vue-router": "^3.0.1",
+    "vue-socket.io": "^2.1.1-b",
     "vuex": "^3.0.1"
   }
 }
