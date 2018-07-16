@@ -29,9 +29,9 @@
   export default {
     sockets: {
       sessionLogsObserver: function (data) {
-        console.warn('Logs Observer Data: ', data.data);
-        if(data.data.result) {
-          data.data.result.map(log => {
+        console.warn('Logs Observer Data: ', data);
+        if(data.result) {
+          data.result.map(log => {
             this.logsArray.push(log);
           })
         }
@@ -92,7 +92,7 @@
       ]),
       startObserveSessionLogs() {
         console.log({sessionId: this.currentSessionId});
-        this.$socket.emit('get_session_logs', {sessionId: this.currentSessionId});
+        this.$socket.emit('listen_session', {session_id: this.currentSessionId});
       },
       stopObserveSessionLogs() {
         console.log('Observer Stopped', {sessionId: this.currentSessionId});
