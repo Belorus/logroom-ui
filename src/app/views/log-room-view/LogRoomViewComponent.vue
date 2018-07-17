@@ -61,7 +61,11 @@
         sessionId: this.currentSessionId
       };
       this.setActiveSessionId(sessionIdData);
-      this.getLogsBySession(sessionIdData);
+      /**
+       * TODO properly handle request for session logs
+       * by session identifier
+       */
+      // this.getLogsBySession(sessionIdData);
 
       this.startObserveSessionLogs();
     },
