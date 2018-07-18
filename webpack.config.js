@@ -93,6 +93,6 @@ module.exports = {
       chunks:['app']
     }),
     new CleanWebpackPlugin(['dist']),
-    new BundleAnalyzerPlugin({defaultSizes: 'parsed'})
+    new BundleAnalyzerPlugin({defaultSizes: 'parsed', analyzerMode: isProd ? 'disabled' : 'server'})
   ]
 };
