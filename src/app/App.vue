@@ -33,7 +33,7 @@
       },
       sendActiveSessions: function (sessionsData) {
         console.log('sessionsData: ', sessionsData);
-        let sessionIds = sessionsData.data.result;
+        let sessionIds = sessionsData.result;
         let sessionTemplateObj = {
           archived:0,
           id:1,
