@@ -19,8 +19,7 @@ Vue.use(ElementUI);
 Vue.use(VueRouter);
 Vue.use(Vuex);
 
-const SOCKET_ENDPOINT = 'ws://localhost:9861';
-export const SocketInstance = socketio(SOCKET_ENDPOINT, { transports: ['websocket']});
+export const SocketInstance = socketio(window.href.origin + ':9861', { transports: ['websocket']});
 Vue.use(VueSocketio, SocketInstance);
 
 const router = new VueRouter({
