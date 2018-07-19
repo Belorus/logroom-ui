@@ -30,7 +30,6 @@
   export default {
     sockets: {
       get_logs_by_session: function (data) {
-        console.warn('initial session data: ', data);
         if(data.result) {
           data.result.list.map(log => {
             this.logsArray.push(log);
@@ -38,18 +37,11 @@
         }
       },
       sessionLogsObserver: function (data) {
-        console.warn('sessionLogsObserver: ', data);
         if(data.result) {
           data.result.map(log => {
             this.logsArray.push(log);
           })
         }
-      },
-      listen_session: function (data) {
-        console.warn('Listen Session response: ', data);
-      },
-      stopLogsObserver: function (data) {
-        console.log('Stop listening session: ', data);
       }
     },
     data() {
@@ -76,7 +68,6 @@
       this.startObserveSessionLogs();
     },
     destroyed() {
-      console.warn('COMPONENT DESTOYED!!!');
       this.stopObserveSessionLogs();
     },
     computed: {
@@ -105,12 +96,10 @@
         return hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2) + ':' + miliseconds.substr(-3);
       },
       startObserveSessionLogs() {
-        console.log({sessionId: this.currentSessionId}, 'get_logs_by_session');
         this.$socket.emit('get_logs_by_session', {session_id: this.currentSessionId});
         this.$socket.emit('listen_session', {session_id: this.currentSessionId});
       },
       stopObserveSessionLogs() {
-        console.log('Observer Stopped', {sessionId: this.currentSessionId});
         this.$socket.emit(STOP_LISTEN_SESSION, {sessionId: this.currentSessionId});
       }
     }

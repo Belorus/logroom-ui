@@ -21,12 +21,6 @@
       disconnect: function () {
         console.log('socket to notification channel disconnected')
       },
-      initialConnectConfirm: function(val){
-        console.log(val, 'this method was fired by the socket server.')
-      },
-      serverTestEvent: function (data) {
-        console.log('Server From Server: ', data);
-      },
       sendActiveSessions: function (sessionsData) {
         let sessionTemplateObj = {
           archived:0,
@@ -41,9 +35,6 @@
           sessionIds.push(sessionObj);
         });
         this.getActiveSessionsAction(sessionIds);
-      },
-      stopLogsObserver: function (data) {
-        console.log('Stop listening session: ', data);
       }
     },
     methods: {
@@ -51,15 +42,6 @@
         getAllSessionsAction: 'getAllSessionsAction',
         getActiveSessionsAction: 'getActiveSessionsAction'
       }),
-      pingServer() {
-        console.warn('PUSHED! Socket connection flag: ', this.$socket.connected);
-        this.$socket.emit('сlientTestEvent', {client:'PING!'});
-        this.$socket.connect();
-      },
-      disconnectSocket() {
-        this.$socket.emit('disconnect');
-        this.$socket.close();
-      },
       getActiveSessions() {
         this.$socket.emit(SRV_GET_ACTIVE_SESSIONS);
       }
