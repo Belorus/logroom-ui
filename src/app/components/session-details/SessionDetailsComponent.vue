@@ -1,19 +1,16 @@
 <template>
   <div>
     <div class="details_wrapper" v-if="currentSessionDetailsData">
-      <h3>{{currentSessionDetailsData.additional.app_name}}</h3>
-      <p>ID: {{currentSessionDetailsData.id}}</p>
+      <h3>{{currentSessionDetailsData.additional.app_name}} - {{currentSessionDetailsData.additional.app_version}}</h3>
+      <p class="session_id_title">ID: {{currentSessionDetailsData.id}}</p>
 
-      <p>App Version: {{currentSessionDetailsData.additional.app_version}}</p>
       <p>Branch: {{currentSessionDetailsData.additional.branch}}</p>
       <p>Device model: {{currentSessionDetailsData.additional.device_model}}</p>
       <p>Device name: {{currentSessionDetailsData.additional.device_name}}</p>
       <p>Environment: {{currentSessionDetailsData.additional.environment}}</p>
       <p>Login type: {{currentSessionDetailsData.additional.login_type}}</p>
-      <p>OS: {{currentSessionDetailsData.additional.os}}</p>
-      <p>OS version: {{currentSessionDetailsData.additional.os_version}}</p>
-      <p>User Id: {{currentSessionDetailsData.additional.user_id}}</p>
-      <p>User Name: {{currentSessionDetailsData.additional.user_name}}</p>
+      <p>OS: {{currentSessionDetailsData.additional.os}}. {{currentSessionDetailsData.additional.os_version}}</p>
+      <p>User: #{{currentSessionDetailsData.additional.user_id}} - {{currentSessionDetailsData.additional.user_name}}</p>
     </div>
     <div class="error_container" v-else>
       No session details avaliable!
@@ -37,6 +34,9 @@
 </script>
 
 <style lang="scss" scoped>
+  .session_id_title {
+    font-size: 12px;
+  }
   .session_title {
     font-size: 18px;
     i {
