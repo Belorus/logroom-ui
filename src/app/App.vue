@@ -32,22 +32,19 @@
         console.log('Server From Server: ', data);
       },
       sendActiveSessions: function (sessionsData) {
-        let sessionIds = [];
-        sessionsData.result.map(sessionDataObj => {
-          let isSessionRecorded = sessionIds.includes(sessionDataObj.uuid);
-          sessionIds.push(sessionDataObj.uuid);
-        });
         let sessionTemplateObj = {
           archived:0,
           id:1,
           name:"Alex Session"
         };
+        let sessionIds = [];
         let activeSessions = [];
-        sessionIds.map(sessionId => {
-          let sessionObj = Object.assign({}, sessionTemplateObj, {id: sessionId});
-          activeSessions.push(sessionObj);
+
+        sessionsData.result.map(sessionDataObj => {
+          let sessionObj = Object.assign({}, sessionDataObj, {id: sessionDataObj.uuid});
+          sessionIds.push(sessionObj);
         });
-        this.getActiveSessionsAction(activeSessions);
+        this.getActiveSessionsAction(sessionIds);
       },
       stopLogsObserver: function (data) {
         console.log('Stop listening session: ', data);

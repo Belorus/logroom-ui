@@ -1,25 +1,19 @@
 <template>
   <div>
     <div class="details_wrapper" v-if="currentSessionDetailsData">
-      <p class="session_title">
-        <i class="el-icon-mobile-phone"></i>
-        {{currentSessionDetailsData.name}}
-      </p>
-      <p class="session_data_text">
-        <i><b>#</b></i>
-        {{currentSessionDetailsData.id}}</p>
-      <p class="session_data_text">
-        <i class="el-icon-time"></i>
-        Session Duration</p>
-      <p class="session_data_text">
-        <i class="el-icon-menu"></i>
-        Device / OS</p>
-      <p class="session_data_text">
-        <i class="el-icon-mobile-phone"></i>
-        Project / Version</p>
-      <p class="session_data_text">
-        <i class="el-icon-edit-outline"></i>
-        TEST</p>
+      <h3>{{currentSessionDetailsData.additional.app_name}}</h3>
+      <p>ID: {{currentSessionDetailsData.id}}</p>
+
+      <p>App Version: {{currentSessionDetailsData.additional.app_version}}</p>
+      <p>Branch: {{currentSessionDetailsData.additional.branch}}</p>
+      <p>Device model: {{currentSessionDetailsData.additional.device_model}}</p>
+      <p>Device name: {{currentSessionDetailsData.additional.device_name}}</p>
+      <p>Environment: {{currentSessionDetailsData.additional.environment}}</p>
+      <p>Login type: {{currentSessionDetailsData.additional.login_type}}</p>
+      <p>OS: {{currentSessionDetailsData.additional.os}}</p>
+      <p>OS version: {{currentSessionDetailsData.additional.os_version}}</p>
+      <p>User Id: {{currentSessionDetailsData.additional.user_id}}</p>
+      <p>User Name: {{currentSessionDetailsData.additional.user_name}}</p>
     </div>
     <div class="error_container" v-else>
       No session details avaliable!

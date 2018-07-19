@@ -8,9 +8,19 @@
               :key="session.id">
         <el-card
           class="box-card">
-          <h3>{{session.name}}</h3>
-          <p>Archived: {{session.archived}}</p>
+          <h3>{{session.additional.app_name}}</h3>
           <p>ID: {{session.id}}</p>
+
+          <p>App Version: {{session.additional.app_version}}</p>
+          <p>Branch: {{session.additional.branch}}</p>
+          <p>Device model: {{session.additional.device_model}}</p>
+          <p>Device name: {{session.additional.device_name}}</p>
+          <p>Environment: {{session.additional.environment}}</p>
+          <p>Login type: {{session.additional.login_type}}</p>
+          <p>OS: {{session.additional.os}}</p>
+          <p>OS version: {{session.additional.os_version}}</p>
+          <p>User Id: {{session.additional.user_id}}</p>
+          <p>User Name: {{session.additional.user_name}}</p>
           <el-button type="primary" @click="navToLogRoom(session.id)">Connect To Session</el-button>
         </el-card>
       </el-col>
@@ -45,7 +55,12 @@
   .el-col {
     margin-bottom: 20px;
   }
-  .box-card h3 {
-    margin-top: 0;
+  .box-card {
+    h3 {
+      margin-top: 0;
+    }
+    p {
+      margin: 10px 0;
+    }
   }
 </style>
