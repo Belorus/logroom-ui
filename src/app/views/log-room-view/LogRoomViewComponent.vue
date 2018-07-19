@@ -101,7 +101,8 @@
         let hours = date.getHours();
         let minutes = "0" + date.getMinutes();
         let seconds = "0" + date.getSeconds();
-        return hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+        let miliseconds = "0" + date.getMilliseconds();
+        return hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2) + ':' + miliseconds.substr(-2);
       },
       startObserveSessionLogs() {
         console.log({sessionId: this.currentSessionId}, 'get_logs_by_session');

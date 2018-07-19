@@ -32,8 +32,11 @@
         console.log('Server From Server: ', data);
       },
       sendActiveSessions: function (sessionsData) {
-        console.log('sessionsData: ', sessionsData);
-        let sessionIds = sessionsData.result;
+        let sessionIds = [];
+        sessionsData.result.map(sessionDataObj => {
+          let isSessionRecorded = sessionIds.includes(sessionDataObj.uuid);
+          sessionIds.push(sessionDataObj.uuid);
+        });
         let sessionTemplateObj = {
           archived:0,
           id:1,
@@ -41,7 +44,6 @@
         };
         let activeSessions = [];
         sessionIds.map(sessionId => {
-          console.log('Active sessions IDS: ', sessionId);
           let sessionObj = Object.assign({}, sessionTemplateObj, {id: sessionId});
           activeSessions.push(sessionObj);
         });
