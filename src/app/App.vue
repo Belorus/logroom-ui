@@ -1,9 +1,5 @@
 <template>
   <div class="main_container">
-    <el-row class="btns_socket_container">
-      <el-button type="info" @click="pingServer">Socket</el-button>
-      <el-button type="info" @click="disconnectSocket">Disconnect Socket</el-button>
-    </el-row>
     <router-view></router-view>
   </div>
 </template>
@@ -70,18 +66,3 @@
     }
   }
 </script>
-
-<style lang="scss" scoped>
-  .btns_socket_container {
-    position: absolute;
-    top: 0;
-    right: 0;
-    left: 50%;
-    z-index: 999999999;
-    .el-button {
-      float: right;
-      margin: 10px 20px;
-    }
-  }
-
-</style>
