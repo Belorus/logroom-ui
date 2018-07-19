@@ -19,7 +19,7 @@ Vue.use(ElementUI);
 Vue.use(VueRouter);
 Vue.use(Vuex);
 
-export const SocketInstance = socketio(window.href.origin + ':9861', { transports: ['websocket']});
+export const SocketInstance = socketio(location.origin + ':9861', { transports: ['websocket']});
 Vue.use(VueSocketio, SocketInstance);
 
 const router = new VueRouter({
