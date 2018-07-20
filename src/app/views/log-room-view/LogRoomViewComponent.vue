@@ -133,7 +133,7 @@
     -webkit-margin-start: 0;
     -webkit-margin-end: 0;
     font-family: monospace;
-    font-size: 14pt;
+    font-size: 11pt;
   }
 
 </style>
