@@ -3,12 +3,6 @@
     <el-row>
       <el-button type="primary" size="medium" plain @click="postNewLog">Post New log</el-button>
     </el-row>
-    <!--<el-row>-->
-      <!--<el-button type="success" size="medium" plain @click="postLogsRecursively">Post 400 logs</el-button>-->
-    <!--</el-row>-->
-    <!--<el-row>-->
-      <!--<el-button type="warning" size="medium" plain @click="getFewMoreLogsFromBuffer">Get few Logs from buffer</el-button>-->
-    <!--</el-row>-->
     <div>
       <p v-for="log in logsData" :key="log.id">{{log.content}} -- {{log.id}} -- {{log.session_related}}</p>
     </div>
@@ -36,6 +30,9 @@
         'getLazyLogsFromBuffer'
       ]),
       postNewLog() {
+        /**
+         * TODO handle post log 4 test
+         */
         // httpWrapper.postNewLog(newLogData => {
         //   this.setNewLogAction({logData: newLogData});
         // });
@@ -53,6 +50,9 @@
         }
       },
       getFewMoreLogsFromBuffer() {
+        /**
+         * TODO handle fwd/bkwd logs loading from store buffer
+         */
         console.log('get from buffer', LOGS_STEP_COUNT);
         // this.getLazyLogsFromBuffer({logsStep: this.lazyLogsStep});
         // ++this.lazyLogsStep;

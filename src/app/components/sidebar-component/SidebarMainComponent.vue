@@ -4,12 +4,6 @@
       <el-row class="sidebar_section">
         <session-details :sessionId="sessionId"></session-details>
       </el-row>
-      <el-row class="sidebar_section">
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid consequuntur cum, est hic ipsam quia ratione. Aliquam aspernatur at autem dolore dolorum ea esse excepturi ipsum, libero magni odit praesentium, quo saepe veniam voluptatum.</p>
-      </el-row>
-      <el-row class="sidebar_section">
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid consequuntur cum, est hic ipsam quia ratione. Aliquam aspernatur at autem dolore dolorum ea esse excepturi ipsum, libero magni odit praesentium, quo saepe veniam voluptatum.</p>
-      </el-row>
     </div>
   </div>
 </template>
