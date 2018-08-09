@@ -2,7 +2,7 @@
   <div class="main_sidebar">
     <div class="sidebar_inner">
       <el-row class="sidebar_section">
-        <session-details :sessionId="sessionId"></session-details>
+        <session-details :sessionId="currentSessionId"></session-details>
       </el-row>
     </div>
   </div>
@@ -10,12 +10,18 @@
 
 <script>
   import SessionDetailsComponent from "../../components/session-details/SessionDetailsComponent";
+
   export default {
+    data() {
+      return {
+        currentSessionId: null,
+      }
+    },
     components: {
       'session-details':SessionDetailsComponent
     },
-    props: {
-      sessionId: String
+    created() {
+      this.currentSessionId = this.$route.params.id;
     }
   }
 </script>

@@ -30,7 +30,7 @@
       <el-table-column
         label="Actions">
         <template slot-scope="scope">
-          <el-button @click="connectToArchive(scope.row.id)" plain size="mini">Get Session Logs</el-button>
+          <el-button @click="navToLogRoom(scope.row.id)" plain size="mini">Get Session Logs</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -48,13 +48,12 @@
     },
     computed: {
       ...mapGetters({
-        archivedSessions: 'getArchiveSessions',
         allSessions: 'getAllSessionsGetter',
         isGetSessionsError: 'sessionsGetError'
       })
     },
     methods: {
-      connectToArchive(sessionId) {
+      navToLogRoom(sessionId) {
         this.$router.push({name: LOG_ROOM_PAGE, params: {id: sessionId}});
       }
     }
@@ -70,7 +69,6 @@
     right: 0;
     bottom: 0;
     left: 0;
-    /*overflow: scroll;*/
   }
   .active_text {
     color: limegreen;

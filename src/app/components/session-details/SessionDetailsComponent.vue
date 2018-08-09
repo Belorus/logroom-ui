@@ -1,16 +1,16 @@
 <template>
   <div>
-    <div class="details_wrapper" v-if="currentSessionDetailsData">
-      <h3>{{currentSessionDetailsData.additional.app_name}} - {{currentSessionDetailsData.additional.app_version}}</h3>
-      <p class="session_id_title">ID: {{currentSessionDetailsData.id}}</p>
+    <div class="details_wrapper" v-if="sessionDetailsData">
+      <h3>{{sessionDetailsData.additional.app_name}} - {{sessionDetailsData.additional.app_version}}</h3>
+      <p class="session_id_title">ID: {{sessionDetailsData.id}}</p>
 
-      <p>Branch: {{currentSessionDetailsData.additional.branch}}</p>
-      <p>Device model: {{currentSessionDetailsData.additional.device_model}}</p>
-      <p>Device name: {{currentSessionDetailsData.additional.device_name}}</p>
-      <p>Environment: {{currentSessionDetailsData.additional.environment}}</p>
-      <p>Login type: {{currentSessionDetailsData.additional.login_type}}</p>
-      <p>OS: {{currentSessionDetailsData.additional.os}}. {{currentSessionDetailsData.additional.os_version}}</p>
-      <p>User: #{{currentSessionDetailsData.additional.user_id}} - {{currentSessionDetailsData.additional.user_name}}</p>
+      <p>Branch: {{sessionDetailsData.additional.branch}}</p>
+      <p>Device model: {{sessionDetailsData.additional.device_model}}</p>
+      <p>Device name: {{sessionDetailsData.additional.device_name}}</p>
+      <p>Environment: {{sessionDetailsData.additional.environment}}</p>
+      <p>Login type: {{sessionDetailsData.additional.login_type}}</p>
+      <p>OS: {{sessionDetailsData.additional.os}}. {{sessionDetailsData.additional.os_version}}</p>
+      <p>User: #{{sessionDetailsData.additional.user_id}} - {{sessionDetailsData.additional.user_name}}</p>
     </div>
     <div class="error_container" v-else>
       No session details avaliable!
@@ -27,8 +27,11 @@
     },
     computed: {
       ...mapGetters({
-        currentSessionDetailsData: 'getSessionDetailsGetter'
-      })
+        getSessionDetailsByIdGetter: 'getSessionDetailsByIdGetter'
+      }),
+      sessionDetailsData() {
+        return this.getSessionDetailsByIdGetter(this.sessionId);
+      }
     }
   }
 </script>

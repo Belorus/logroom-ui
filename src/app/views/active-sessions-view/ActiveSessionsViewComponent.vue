@@ -1,23 +1,12 @@
 <template>
   <div>
     <h2 v-if="isGetSessionsError">ERROR 2 GET SESSIONS</h2>
-    <el-row :gutter="20"
-            v-else>
+    <el-row :gutter="20" v-else style="margin: 0 20px;">
+      <h2>Just a place for something else!</h2>
       <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3"
-              v-for="session in activeSessions"
-              :key="session.id">
-        <el-card
-          class="box-card">
-          <h3>{{session.additional.app_name}} - {{session.additional.app_version}}</h3>
-          <p class="session_id_title">ID: {{session.id}}</p>
-
-          <p>Branch: {{session.additional.branch}}</p>
-          <p>Device model: {{session.additional.device_model}}</p>
-          <p>Device name: {{session.additional.device_name}}</p>
-          <p>Environment: {{session.additional.environment}}</p>
-          <p>Login type: {{session.additional.login_type}}</p>
-          <p>OS: {{session.additional.os}}. {{session.additional.os_version}}</p>
-          <p>User: #{{session.additional.user_id}} - {{session.additional.user_name}}</p>
+              v-for="session in activeSessions" :key="session.id">
+        <el-card class="box-card">
+          <session-details v-if="session.id" :sessionId="session.id"></session-details>
           <el-button type="primary" @click="navToLogRoom(session.id)">Connect To Session</el-button>
         </el-card>
       </el-col>
@@ -29,10 +18,13 @@
   import {mapGetters} from "vuex";
   import {LOG_ROOM_PAGE} from "../../router/pages";
   import NavigationComponent from "../../components/navigation/NavigationComponent";
+  import SessionDetailsComponent from "../../components/session-details/SessionDetailsComponent";
+  import {fpUtilsMixin} from "../../shared/utils/fp-utils";
 
   export default {
     components: {
-      'navigation-component': NavigationComponent
+      'navigation-component': NavigationComponent,
+      'session-details': SessionDetailsComponent
     },
     computed: {
       ...mapGetters({
