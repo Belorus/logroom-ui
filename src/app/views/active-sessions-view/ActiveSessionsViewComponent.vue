@@ -2,7 +2,6 @@
   <div>
     <h2 v-if="isGetSessionsError">ERROR 2 GET SESSIONS</h2>
     <el-row :gutter="20" v-else style="margin: 0 20px;">
-      <h2>Just a place for something else!</h2>
       <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3"
               v-for="session in activeSessions" :key="session.id">
         <el-card class="box-card">
@@ -19,7 +18,6 @@
   import {LOG_ROOM_PAGE} from "../../router/pages";
   import NavigationComponent from "../../components/navigation/NavigationComponent";
   import SessionDetailsComponent from "../../components/session-details/SessionDetailsComponent";
-  import {fpUtilsMixin} from "../../shared/utils/fp-utils";
 
   export default {
     components: {
