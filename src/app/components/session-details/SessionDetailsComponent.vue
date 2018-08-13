@@ -2,15 +2,38 @@
   <div>
     <div class="details_wrapper" v-if="sessionDetailsData">
       <h3>{{sessionDetailsData.additional.app_name}} - {{sessionDetailsData.additional.app_version}}</h3>
-      <p class="session_id_title">ID: {{sessionDetailsData.id}}</p>
+      <p class="session_id_title">
+        <span>#ID</span>: {{sessionDetailsData.id}}
+      </p>
 
-      <p>Branch: {{sessionDetailsData.additional.branch}}</p>
-      <p>Device model: {{sessionDetailsData.additional.device_model}}</p>
-      <p>Device name: {{sessionDetailsData.additional.device_name}}</p>
-      <p>Environment: {{sessionDetailsData.additional.environment}}</p>
-      <p>Login type: {{sessionDetailsData.additional.login_type}}</p>
-      <p>OS: {{sessionDetailsData.additional.os}}. {{sessionDetailsData.additional.os_version}}</p>
-      <p>User: #{{sessionDetailsData.additional.user_id}} - {{sessionDetailsData.additional.user_name}}</p>
+      <p class="data_title"
+         :class="{text_ellipsis: !isLogroomPage}">
+        Branch: <span>{{sessionDetailsData.additional.branch}}</span>
+      </p>
+      <p class="data_title"
+         :class="{text_ellipsis: !isLogroomPage}">
+        Device model: <span>{{sessionDetailsData.additional.device_model}}</span>
+      </p>
+      <p class="data_title"
+         :class="{text_ellipsis: !isLogroomPage}">
+        Device name: <span>{{sessionDetailsData.additional.device_name}}</span>
+      </p>
+      <p class="data_title"
+         :class="{text_ellipsis: !isLogroomPage}">
+        Environment: <span>{{sessionDetailsData.additional.environment}}</span>
+      </p>
+      <p class="data_title"
+         :class="{text_ellipsis: !isLogroomPage}">
+        Login type: <span>{{sessionDetailsData.additional.login_type}}</span>
+      </p>
+      <p class="data_title"
+         :class="{text_ellipsis: !isLogroomPage}">
+        OS: <span>{{sessionDetailsData.additional.os}}. {{sessionDetailsData.additional.os_version}}</span>
+      </p>
+      <p class="data_title"
+         :class="{text_ellipsis: !isLogroomPage}">
+        User: <span>#{{sessionDetailsData.additional.user_id}} - {{sessionDetailsData.additional.user_name}}</span>
+      </p>
     </div>
     <div class="error_container" v-else>
       No session details avaliable!
@@ -19,6 +42,7 @@
 </template>
 
 <script>
+  import {LOG_ROOM_PAGE} from "../../router/pages";
   import {mapGetters} from "vuex";
 
   export default {
@@ -31,31 +55,34 @@
       }),
       sessionDetailsData() {
         return this.getSessionDetailsByIdGetter(this.sessionId);
+      },
+      isLogroomPage() {
+        return this.$route.name === LOG_ROOM_PAGE;
       }
     }
   }
 </script>
 
 <style lang="scss" scoped>
+  @import "../../../assets/styles/mixins";
+
   .session_id_title {
     font-size: 12px;
-  }
-  .session_title {
-    font-size: 18px;
-    i {
-      margin-right: 10px;
-    }
-  }
-  .session_data_text {
-    font-size: 14px;
-    padding-left: 20px;
+    height: 20px;
+    @include text-ellipsis;
     span {
+      font-size: 14px;
       font-weight: bold;
-      font-size: 16px;
     }
-    i {
-      width: 10px;
-      margin-right: 10px;
+  }
+  .text_ellipsis {
+    @include text-ellipsis;
+  }
+  .data_title {
+    font-size: 12px;
+    span {
+      font-size: 14px;
+      font-weight: 600;
     }
   }
 </style>

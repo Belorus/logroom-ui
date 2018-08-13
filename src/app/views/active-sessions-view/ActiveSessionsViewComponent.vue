@@ -2,7 +2,7 @@
   <div>
     <h2 v-if="isGetSessionsError">ERROR 2 GET SESSIONS</h2>
     <el-row :gutter="20" v-else style="margin: 0 20px;">
-      <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3"
+      <el-col :xs="24" :sm="12" :md="8" :lg="6" :xl="4"
               v-for="session in activeSessions" :key="session.id">
         <el-card class="box-card">
           <session-details v-if="session.id" :sessionId="session.id"></session-details>
@@ -39,9 +39,6 @@
 </script>
 
 <style lang="scss" scoped>
-  .session_id_title {
-    font-size: 12px;
-  }
   .el-col {
     margin-bottom: 20px;
   }
