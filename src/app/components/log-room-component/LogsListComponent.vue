@@ -5,7 +5,7 @@
     </p>
   </div>
 </template>
-s
+
 <script>
   import {mapActions} from "vuex";
   import {LOGS_STEP_COUNT} from "../../shared/logs-count-util/logs-count-util";

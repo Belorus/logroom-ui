@@ -6,34 +6,39 @@
 
 <script>
   import {mapActions} from "vuex";
-
-  const SOCKET_FWD_GET_ACTIVE_SESSIONS = 'get_active_sessions';
+  import {httpWrapper} from "./http/http-wrapper";
 
   export default {
     sockets:{
       connect: function(){
         console.log('socket connected');
-        this.getActiveSessions();
+        this.getAllActiveSessionsByHttp();
       },
       disconnect: function () {
         console.log('socket to notification channel disconnected')
       },
-      sendActiveSessions: function (sessionsData) {
-        let sessionIds = [];
-
-        sessionsData.result.map(sessionDataObj => {
-          let sessionObj = Object.assign({}, sessionDataObj, {id: sessionDataObj.uuid});
-          sessionIds.push(sessionObj);
-        });
-        this.getActiveSessionsAction(sessionIds);
+      SOCKET_B_STOP_LISTEN_SESSION_SUCCESS: function () {
+        console.log('Session listenning stopped');
       }
     },
     methods: {
       ...mapActions({
         getActiveSessionsAction: 'getActiveSessionsAction'
       }),
-      getActiveSessions() {
-        this.$socket.emit(SOCKET_FWD_GET_ACTIVE_SESSIONS);
+      getAllActiveSessionsByHttp() {
+        httpWrapper.getActiveSessions(
+          sessionsData => {
+            let sessionIds = [];
+            sessionsData.map(sessionDataObj => {
+              let sessionObj = Object.assign({}, sessionDataObj, {id: sessionDataObj.id});
+              sessionIds.push(sessionObj);
+            });
+            this.getActiveSessionsAction(sessionIds);
+          },
+          err => {
+            console.log(err, 'GET ACTIVE SESSIONS OVER HTTP MODULE ERROR OCCURED');
+          }
+        )
       }
     }
   }

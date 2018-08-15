@@ -1,4 +1,3 @@
-import {httpWrapper} from "../../http/http-wrapper";
 import {
   ADD_SESSION,
   ERROR_GET_SESSION,

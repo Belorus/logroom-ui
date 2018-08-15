@@ -34,7 +34,7 @@ const mutations = {
     state.sessionLogs = resLogs.concat(state.sessionLogs);
   },
   [SET_ACTIVE_SESSION](state, payload) {
-    state.activeSessionId = payload.sessionId;
+    state.activeSessionId = payload ? payload.sessionId : null;
   }
 };
 

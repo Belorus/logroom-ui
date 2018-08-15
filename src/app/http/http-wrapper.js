@@ -3,33 +3,25 @@ import axios from "axios/index";
 const BASE_URL = 'http://10.61.20.89:8080/push_log';
 
 const BASE_JSDB_URL = "http://localhost:3000/";
+/**
+ * TODO change dasic url later
+ * @type {string}
+ */
+const EXPRESS_SERVER_URL = "http://10.61.40.184:4000/";
 const DIVIDER = "/";
 const SESSIONS = "sessions";
+const ACTIVE_SESSIONS = "activeSessions";
 const LOGS = "logs";
 
 class HttpWrapperClass {
-  getAllSessions(callback, errHandler) {
+  getActiveSessions(callback, errHandler) {
     axios
-      .get(BASE_JSDB_URL + SESSIONS)
+      .get(EXPRESS_SERVER_URL + ACTIVE_SESSIONS)
       .then(res => {
         callback(res.data);
       })
       .catch(err => {
         errHandler(err);
-      })
-  }
-
-  getAllActiveSessions(callback) {
-    let activeSessionsParam = {
-      archived: 0
-    };
-    axios
-      .get(BASE_JSDB_URL + SESSIONS, {params: activeSessionsParam})
-      .then(res => {
-        callback(res.data);
-      })
-      .catch(err => {
-        console.warn('Error: ', err);
       })
   }
 
@@ -39,7 +31,7 @@ class HttpWrapperClass {
       session_related: 1
     };
     axios
-      .post(BASE_JSDB_URL + LOGS, logData)
+      .post(EXPRESS_SERVER_URL + LOGS, logData)
       .then(res => {
         callback(res.data);
       })

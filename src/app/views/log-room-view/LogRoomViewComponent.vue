@@ -21,23 +21,14 @@
   import LogsListComponent from "../../components/log-room-component/LogsListComponent";
   import {throttle} from "../../shared/utils/utils";
 
-  const STOP_LISTEN_SESSION = 'stop_listen_session';
-
   export default {
     sockets: {
-      get_logs_by_session: function (data) {
-        if(data.result) {
-          data.result.list.map(log => {
-            this.logsArray.push(log);
-          })
-        }
-      },
-      sessionLogsObserver: function (data) {
-        if(data.result) {
-          data.result.map(log => {
-            this.logsArray.push(log);
-          });
-        }
+      SOCKET_B_PUSH_LOGS: function (data) {
+        console.log(data.logs);
+
+        this.logsArray = data.isOld
+          ? [...this.logsArray, ...data.logs]
+          : [...data.logs, ...this.logsArray];
       }
     },
     data() {
@@ -65,10 +56,11 @@
     },
     destroyed() {
       this.stopObserveSessionLogs();
+      this.setActiveSessionId(null);
     },
     mounted() {
       this.scrollableInner = this.$refs['scrollableInner'];
-      this.scrollableInner.addEventListener('scroll', throttle(this.handleLogsLoadOnScroll, 500));
+      this.scrollableInner.addEventListener('scroll', throttle(this.handleLogsLoadOnScroll, 15));
     },
     computed: {
       ...mapGetters({
@@ -77,7 +69,7 @@
         bufferedLogsLength: 'getBufferedLogsLength'
       }),
       revercedLogs() {
-        return this.logsArray.slice().reverse();
+        return this.logsArray;
       }
     },
     methods: {
@@ -85,14 +77,36 @@
         'setActiveSessionId',
       ]),
       startObserveSessionLogs() {
-        this.$socket.emit('get_logs_by_session', {session_id: this.currentSessionId});
-        this.$socket.emit('listen_session', {session_id: this.currentSessionId});
+        let listenSessionData = {
+          sessionId: this.currentSessionId,
+          sendOld: true,
+          limit: 1000
+        };
+        this.$socket.emit('SOCKET_F_START_LISTEN_SESSION', listenSessionData);
       },
       stopObserveSessionLogs() {
-        this.$socket.emit(STOP_LISTEN_SESSION, {sessionId: this.currentSessionId});
+        this.$socket.emit('SOCKET_F_STOP_LISTEN_SESSION', {sessionId: this.currentSessionId});
       },
       handleLogsLoadOnScroll() {
-        console.log('Throttling logic event fired on scroll!');
+        // console.log('Throttling logic event fired on scroll!');
+        // console.warn(
+        //   this.scrollableInner.scrollTop,
+        //   this.scrollableInner.clientHeight,
+        //   this.scrollableInner.scrollHeight,
+        //   this.scrollableInner.offsetHeight
+        // );
+
+        if(this.scrollableInner.scrollTop > 0 && this.scrollableInner.scrollTop < 30) {
+          console.warn('SCROLL DOWN STARTED');
+        }
+
+        if(this.scrollableInner.scrollTop <= 0) {
+          console.warn('TOP REACHED!');
+        }
+
+        if(this.scrollableInner.scrollTop >= (this.scrollableInner.scrollHeight - this.scrollableInner.offsetHeight)) {
+          console.warn('BOTTOM REACHED!');
+        }
       }
     }
   }
