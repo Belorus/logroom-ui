@@ -20,6 +20,7 @@
   import SidebarMainComponent from "../../components/sidebar-component/SidebarMainComponent";
   import LogsListComponent from "../../components/log-room-component/LogsListComponent";
   import {throttle} from "../../shared/utils/utils";
+  import {httpWrapper} from "../../http/http-wrapper";
   import {IS_OLD_LOGS_REQUIRED, OLD_LOGS_LIMIT} from "../../shared/config-util/config-util";
 
   export default {
@@ -33,7 +34,9 @@
         currentSessionId: null,
         scrollableInner: HTMLElement,
         logsArray: [],
-        isRuntimeConcatLogsFlag: true
+        isRuntimeConcatLogsFlag: true,
+        slicedLogsBuffer: [],
+        slicedOldLogsBuffer: []
       }
     },
     components: {
@@ -112,6 +115,11 @@
 
         if(scrollDistance <= 0) {
           console.warn('TOP REACHED!', this.runtimeStoredLogs.length);
+          if(this.slicedLogsBuffer.length > 0) {
+            this.logsArray = this.slicedLogsBuffer.concat(this.logsArray);
+            this.slicedLogsBuffer = [];
+          }
+
           if(this.runtimeStoredLogs.length > 0) {
             this.logsArray = this.runtimeStoredLogs.concat(this.logsArray);
             this.resetRuntimeLogs();
@@ -120,7 +128,39 @@
         }
 
         if(scrollDistance >= (scrollHeight - offsetHeight)) {
-          console.warn('BOTTOM REACHED!');
+          this.getOldLogsPackHandler();
+        }
+      },
+      getOldLogsPackHandler() {
+        let lastSeqNumber = this.logsArray[this.logsArray.length - 1].seqNumber - 1;
+
+        if(lastSeqNumber > 0) {
+          let logsData = {
+            sessionId: this.currentSessionId,
+            startFrom: lastSeqNumber,
+            limit: OLD_LOGS_LIMIT
+          };
+
+          httpWrapper.getPackOfOldLogs(logsData, logsResponse => {
+            console.warn(this.logsArray.length, ' - Displayed Logs Length');
+
+            let limit = 60;
+            let arrayLength = this.logsArray.length;
+
+            let slicedArray = this.logsArray.slice(arrayLength - limit, arrayLength);
+
+            let partSlicedLogs = this.logsArray.slice(0, arrayLength - limit);
+
+            if(partSlicedLogs.length > 0) {
+              this.slicedLogsBuffer = [...this.slicedLogsBuffer, ...partSlicedLogs];
+            }
+
+            if(arrayLength > limit) {
+              console.log(slicedArray, partSlicedLogs, this.slicedLogsBuffer);
+              this.scrollableInner.scrollTop = this.scrollableInner.offsetHeight - 100;
+            }
+            this.logsArray = [...slicedArray, ...logsResponse]
+          });
         }
       }
     }

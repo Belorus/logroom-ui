@@ -24,7 +24,18 @@ class HttpWrapperClass {
         errHandler(err);
       })
   }
-
+  getPackOfOldLogs(logsData, callback) {
+    axios
+      .get(EXPRESS_SERVER_URL + 'sessionLogs', {
+        params: logsData
+      })
+      .then(res => {
+        callback(res.data[0])
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  }
   postNewLog(callback) {
     let logData = {
       content: "Log for device Xiaomi Mi2, QA session",

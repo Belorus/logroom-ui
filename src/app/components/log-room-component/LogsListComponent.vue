@@ -1,7 +1,8 @@
 <template>
   <div>
     <p v-for="(log, index) in logsData" :key="index" class="list-item">
-      {{formattedTimestamp(log.timestamp)}} | {{log.level}} | {{log.thread}} | {{log.tag}}: {{log.message}}
+      <b style="font-size: 22px;">{{log.seqNumber}}</b>
+      <!--{{formattedTimestamp(log.timestamp)}} | {{log.level}} | {{log.thread}} | {{log.tag}}: {{log.message}}-->
     </p>
   </div>
 </template>
