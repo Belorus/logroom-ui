@@ -1,0 +1,4 @@
+const OLD_LOGS_LIMIT = 30;
+const IS_OLD_LOGS_REQUIRED = true;
+
+export {OLD_LOGS_LIMIT, IS_OLD_LOGS_REQUIRED};

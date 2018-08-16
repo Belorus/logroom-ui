@@ -8,7 +8,6 @@
 
 <script>
   import {mapActions} from "vuex";
-  import {LOGS_STEP_COUNT} from "../../shared/logs-count-util/logs-count-util";
   import {formattedTimestampUtil} from "../../shared/utils/utils";
 
   export default {
@@ -22,21 +21,11 @@
     },
     methods: {
       ...mapActions([
-        'setNewLogAction',
-        'getLazyLogsFromBuffer'
+        'setNewLogAction'
       ]),
       formattedTimestamp(timestampData) {
         return formattedTimestampUtil(timestampData);
-      },
-      /**
-       * TODO handle fwd/bkwd logs loading from store buffer
-       */
-      // getFewMoreLogsFromBuffer() {
-      //
-      //   console.log('get from buffer', LOGS_STEP_COUNT);
-      //   this.getLazyLogsFromBuffer({logsStep: this.lazyLogsStep});
-      //   ++this.lazyLogsStep;
-      // }
+      }
     }
   }
 </script>

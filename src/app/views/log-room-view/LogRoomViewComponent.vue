@@ -20,25 +20,20 @@
   import SidebarMainComponent from "../../components/sidebar-component/SidebarMainComponent";
   import LogsListComponent from "../../components/log-room-component/LogsListComponent";
   import {throttle} from "../../shared/utils/utils";
+  import {IS_OLD_LOGS_REQUIRED, OLD_LOGS_LIMIT} from "../../shared/config-util/config-util";
 
   export default {
     sockets: {
       SOCKET_B_PUSH_LOGS: function (data) {
-        console.log(data.logs);
-
-        this.logsArray = data.isOld
-          ? [...this.logsArray, ...data.logs]
-          : [...data.logs, ...this.logsArray];
+        this.receiveLogsHandler(data);
       }
     },
     data() {
       return {
         currentSessionId: null,
-        scrollableInner: '',
-        scrollDownStep: 1,
-        scrollUpStep: 1,
-        scrollTopDirectionMarker: 0,
-        logsArray: []
+        scrollableInner: HTMLElement,
+        logsArray: [],
+        isRuntimeConcatLogsFlag: true
       }
     },
     components: {
@@ -66,7 +61,7 @@
       ...mapGetters({
         isGetSessionsError: 'sessionsGetError',
         logsData: 'getSessionLogs',
-        bufferedLogsLength: 'getBufferedLogsLength'
+        runtimeStoredLogs: 'getRuntimeStoredLogsGetter'
       }),
       revercedLogs() {
         return this.logsArray;
@@ -75,36 +70,56 @@
     methods: {
       ...mapActions([
         'setActiveSessionId',
+        'storeRuntimeLogs',
+        'resetRuntimeLogs'
       ]),
       startObserveSessionLogs() {
         let listenSessionData = {
           sessionId: this.currentSessionId,
-          sendOld: true,
-          limit: 1000
+          sendOld: IS_OLD_LOGS_REQUIRED,
+          limit: OLD_LOGS_LIMIT
         };
         this.$socket.emit('SOCKET_F_START_LISTEN_SESSION', listenSessionData);
       },
       stopObserveSessionLogs() {
         this.$socket.emit('SOCKET_F_STOP_LISTEN_SESSION', {sessionId: this.currentSessionId});
       },
+      receiveLogsHandler(logsData) {
+        this.isRuntimeConcatLogsFlag
+          ? this.runtimeLogsHandler(logsData)
+          : this.storeRuntimeLogs(logsData.logs);
+      },
+      runtimeLogsHandler(logsData) {
+        this.logsArray = logsData.isOld
+          ? this.oldLogsProcessHandler(logsData.logs)
+          : this.newLogsOnlyProcessHandler(logsData.logs);
+      },
+      oldLogsProcessHandler(logsArray) {
+        return [...this.logsArray, ...logsArray]
+      },
+      newLogsOnlyProcessHandler(logsArray) {
+        return [...logsArray, ...this.logsArray]
+      },
       handleLogsLoadOnScroll() {
-        // console.log('Throttling logic event fired on scroll!');
-        // console.warn(
-        //   this.scrollableInner.scrollTop,
-        //   this.scrollableInner.clientHeight,
-        //   this.scrollableInner.scrollHeight,
-        //   this.scrollableInner.offsetHeight
-        // );
+        let scrollDistance = this.scrollableInner.scrollTop;
+        let scrollHeight = this.scrollableInner.scrollHeight;
+        let offsetHeight = this.scrollableInner.offsetHeight;
 
-        if(this.scrollableInner.scrollTop > 0 && this.scrollableInner.scrollTop < 30) {
+        if(scrollDistance > 0 && scrollDistance < 30) {
           console.warn('SCROLL DOWN STARTED');
+          this.isRuntimeConcatLogsFlag = false;
         }
 
-        if(this.scrollableInner.scrollTop <= 0) {
-          console.warn('TOP REACHED!');
+        if(scrollDistance <= 0) {
+          console.warn('TOP REACHED!', this.runtimeStoredLogs.length);
+          if(this.runtimeStoredLogs.length > 0) {
+            this.logsArray = this.runtimeStoredLogs.concat(this.logsArray);
+            this.resetRuntimeLogs();
+          }
+          this.isRuntimeConcatLogsFlag = true;
         }
 
-        if(this.scrollableInner.scrollTop >= (this.scrollableInner.scrollHeight - this.scrollableInner.offsetHeight)) {
+        if(scrollDistance >= (scrollHeight - offsetHeight)) {
           console.warn('BOTTOM REACHED!');
         }
       }
