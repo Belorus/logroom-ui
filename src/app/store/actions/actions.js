@@ -4,7 +4,8 @@ import {
   ADD_NEW_LOG_TO_SESSION,
   SET_ACTIVE_SESSION,
   STORE_RUNTIME_LOGS_MUTATION,
-  RESET_RUNTIME_LOGS_MUTATION
+  RESET_RUNTIME_LOGS_MUTATION,
+  RECORD_SESSION_LOGS_MUTATION
 } from "../mutations/mutation-types";
 
 const actions = {
@@ -25,6 +26,9 @@ const actions = {
     if (this.state.activeSessionId === payload.logData.session_related) {
       commit(ADD_NEW_LOG_TO_SESSION, payload);
     }
+  },
+  recordSessionLogsAction({commit}, payload) {
+    commit(RECORD_SESSION_LOGS_MUTATION, payload);
   }
 };
 

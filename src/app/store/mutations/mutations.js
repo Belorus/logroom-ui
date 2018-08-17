@@ -4,7 +4,8 @@ import {
   SET_ACTIVE_SESSION,
   ADD_NEW_LOG_TO_SESSION,
   STORE_RUNTIME_LOGS_MUTATION,
-  RESET_RUNTIME_LOGS_MUTATION
+  RESET_RUNTIME_LOGS_MUTATION,
+  RECORD_SESSION_LOGS_MUTATION
 } from "./mutation-types";
 
 const mutations = {
@@ -26,6 +27,14 @@ const mutations = {
   },
   [RESET_RUNTIME_LOGS_MUTATION](state) {
     state.runtimeStoredLogs = [];
+  },
+  [RECORD_SESSION_LOGS_MUTATION](state, payload) {
+    console.log(RECORD_SESSION_LOGS_MUTATION, payload);
+    if(payload.isOld) {
+      state.sessionLogs = state.sessionLogs.concat(payload.logs);
+    } else {
+      state.sessionLogs = payload.logs.concat(state.sessionLogs);
+    }
   }
 };
 

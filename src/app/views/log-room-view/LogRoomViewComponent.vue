@@ -7,7 +7,9 @@
       <sidebar-component></sidebar-component>
       <div class="content_wrapper">
         <div class="content_inner" ref="scrollableInner">
-          <logs-list v-if="revercedLogs.length > 0" :logsData="revercedLogs"></logs-list>
+          <logs-list v-if="logsArray.length > 0" :logsData="logsArray"></logs-list>
+          <!--<logs-list v-if="storedSessionLogs.length > 0" :logsData="storedSessionLogs"></logs-list>-->
+          <!--<logs-list v-if="revercedLogs.length > 0" :logsData="revercedLogs"></logs-list>-->
         </div>
       </div>
     </div>
@@ -21,7 +23,7 @@
   import LogsListComponent from "../../components/log-room-component/LogsListComponent";
   import {throttle} from "../../shared/utils/utils";
   import {httpWrapper} from "../../http/http-wrapper";
-  import {IS_OLD_LOGS_REQUIRED, OLD_LOGS_LIMIT} from "../../shared/config-util/config-util";
+  import {IS_OLD_LOGS_REQUIRED, OLD_LOGS_LIMIT, DISPLAYED_LOGS_LIMIT} from "../../shared/config-util/config-util";
 
   export default {
     sockets: {
@@ -35,8 +37,7 @@
         scrollableInner: HTMLElement,
         logsArray: [],
         isRuntimeConcatLogsFlag: true,
-        slicedLogsBuffer: [],
-        slicedOldLogsBuffer: []
+        frameStartIndex: 0
       }
     },
     components: {
@@ -63,8 +64,9 @@
     computed: {
       ...mapGetters({
         isGetSessionsError: 'sessionsGetError',
-        logsData: 'getSessionLogs',
-        runtimeStoredLogs: 'getRuntimeStoredLogsGetter'
+        storedSessionLogs: 'getSessionLogs',
+        runtimeStoredLogs: 'getRuntimeStoredLogsGetter',
+        getSessionLogsByFrameIndexes: 'getSessionLogsByFrameIndexes'
       }),
       revercedLogs() {
         return this.logsArray;
@@ -74,7 +76,8 @@
       ...mapActions([
         'setActiveSessionId',
         'storeRuntimeLogs',
-        'resetRuntimeLogs'
+        'resetRuntimeLogs',
+        'recordSessionLogsAction'
       ]),
       startObserveSessionLogs() {
         let listenSessionData = {
@@ -88,53 +91,95 @@
         this.$socket.emit('SOCKET_F_STOP_LISTEN_SESSION', {sessionId: this.currentSessionId});
       },
       receiveLogsHandler(logsData) {
-        this.isRuntimeConcatLogsFlag
-          ? this.runtimeLogsHandler(logsData)
-          : this.storeRuntimeLogs(logsData.logs);
-      },
-      runtimeLogsHandler(logsData) {
-        this.logsArray = logsData.isOld
-          ? this.oldLogsProcessHandler(logsData.logs)
-          : this.newLogsOnlyProcessHandler(logsData.logs);
-      },
-      oldLogsProcessHandler(logsArray) {
-        return [...this.logsArray, ...logsArray]
-      },
-      newLogsOnlyProcessHandler(logsArray) {
-        return [...logsArray, ...this.logsArray]
+        console.log(logsData.logs.length, 'NEW LOGS LENGTH');
+
+        if (!this.isRuntimeConcatLogsFlag) {
+          this.frameStartIndex = this.frameStartIndex + logsData.logs.length;
+          console.log(this.frameStartIndex, 'this.frameStartIndex');
+        }
+
+        this.recordSessionLogsAction({
+          logs: logsData.logs,
+          isOld: !!logsData.isOld
+        });
+
+        this.logsArray = this.getSessionLogsByFrameIndexes(this.frameStartIndex, this.frameStartIndex + DISPLAYED_LOGS_LIMIT);
+
       },
       handleLogsLoadOnScroll() {
         let scrollDistance = this.scrollableInner.scrollTop;
         let scrollHeight = this.scrollableInner.scrollHeight;
         let offsetHeight = this.scrollableInner.offsetHeight;
 
-        if(scrollDistance > 0 && scrollDistance < 30) {
+        if (scrollDistance > 0 && scrollDistance < 30) {
           console.warn('SCROLL DOWN STARTED');
           this.isRuntimeConcatLogsFlag = false;
         }
 
-        if(scrollDistance <= 0) {
+        if (scrollDistance <= 0) {
           console.warn('TOP REACHED!', this.runtimeStoredLogs.length);
-          if(this.slicedLogsBuffer.length > 0) {
-            this.logsArray = this.slicedLogsBuffer.concat(this.logsArray);
-            this.slicedLogsBuffer = [];
-          }
-
-          if(this.runtimeStoredLogs.length > 0) {
-            this.logsArray = this.runtimeStoredLogs.concat(this.logsArray);
-            this.resetRuntimeLogs();
-          }
           this.isRuntimeConcatLogsFlag = true;
+
+          if(this.frameStartIndex > 0) {
+            this.scrollableInner.scrollTop = scrollHeight/2;
+
+            let startIndex = this.frameStartIndex < DISPLAYED_LOGS_LIMIT / 2
+              ? 0
+              : this.frameStartIndex - DISPLAYED_LOGS_LIMIT / 2;
+
+            let endIndex = this.frameStartIndex > 0
+              ? this.frameStartIndex + DISPLAYED_LOGS_LIMIT / 2
+              : this.frameStartIndex + DISPLAYED_LOGS_LIMIT;
+            this.logsArray = this.getSessionLogsByFrameIndexes(startIndex, endIndex);
+
+            this.frameStartIndex = startIndex;
+          }
         }
 
-        if(scrollDistance >= (scrollHeight - offsetHeight)) {
-          this.getOldLogsPackHandler();
+        if (scrollDistance >= (scrollHeight - offsetHeight)) {
+
+          console.log('BOTTOM REACHED!', offsetHeight);
+
+          if(this.logsArray[this.logsArray.length - 1].seqNumber > 1) {
+            this.getOldLogsPackHandler();
+
+            this.scrollableInner.scrollTop = scrollHeight/2 - offsetHeight;
+
+            setTimeout(()=>{
+              let startIndex = this.frameStartIndex + DISPLAYED_LOGS_LIMIT/2 > this.storedSessionLogs.length - DISPLAYED_LOGS_LIMIT
+                ? this.storedSessionLogs.length - DISPLAYED_LOGS_LIMIT - 2
+                : this.frameStartIndex + DISPLAYED_LOGS_LIMIT/2;
+
+              let endIndex = this.frameStartIndex + DISPLAYED_LOGS_LIMIT/2 > this.storedSessionLogs.length - DISPLAYED_LOGS_LIMIT
+                ? this.storedSessionLogs.length - 1
+                : this.frameStartIndex + DISPLAYED_LOGS_LIMIT + DISPLAYED_LOGS_LIMIT/2;
+
+              this.logsArray = this.getSessionLogsByFrameIndexes(
+                this.frameStartIndex + DISPLAYED_LOGS_LIMIT/2, this.frameStartIndex + DISPLAYED_LOGS_LIMIT + DISPLAYED_LOGS_LIMIT/2
+              );
+              this.frameStartIndex = startIndex;
+
+            }, 100);
+          }
+
+
+          // this.scrollableInner.scrollTop = scrollHeight/2 - offsetHeight;
+          // setTimeout(()=>{
+          //   this.logsArray = this.getSessionLogsByFrameIndexes(
+          //     this.frameStartIndex + DISPLAYED_LOGS_LIMIT/2, this.frameStartIndex + DISPLAYED_LOGS_LIMIT + DISPLAYED_LOGS_LIMIT/2
+          //   );
+          //   this.frameStartIndex = this.frameStartIndex + DISPLAYED_LOGS_LIMIT/2;
+          // },100)
+
+
+
+
         }
       },
       getOldLogsPackHandler() {
-        let lastSeqNumber = this.logsArray[this.logsArray.length - 1].seqNumber - 1;
+        let lastSeqNumber = this.storedSessionLogs[this.storedSessionLogs.length - 1].seqNumber - 1;
 
-        if(lastSeqNumber > 0) {
+        if (lastSeqNumber > 0) {
           let logsData = {
             sessionId: this.currentSessionId,
             startFrom: lastSeqNumber,
@@ -142,24 +187,11 @@
           };
 
           httpWrapper.getPackOfOldLogs(logsData, logsResponse => {
-            console.warn(this.logsArray.length, ' - Displayed Logs Length');
-
-            let limit = 60;
-            let arrayLength = this.logsArray.length;
-
-            let slicedArray = this.logsArray.slice(arrayLength - limit, arrayLength);
-
-            let partSlicedLogs = this.logsArray.slice(0, arrayLength - limit);
-
-            if(partSlicedLogs.length > 0) {
-              this.slicedLogsBuffer = [...this.slicedLogsBuffer, ...partSlicedLogs];
-            }
-
-            if(arrayLength > limit) {
-              console.log(slicedArray, partSlicedLogs, this.slicedLogsBuffer);
-              this.scrollableInner.scrollTop = this.scrollableInner.offsetHeight - 100;
-            }
-            this.logsArray = [...slicedArray, ...logsResponse]
+            console.warn(logsResponse, ' - logsResponse');
+            this.recordSessionLogsAction({
+              logs: logsResponse,
+              isOld: true
+            });
           });
         }
       }
@@ -179,6 +211,7 @@
     bottom: 0;
     left: 0;
   }
+
   .content_wrapper {
     position: relative;
     width: calc(100vw - 300px);
