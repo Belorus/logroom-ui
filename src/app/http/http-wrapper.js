@@ -7,7 +7,7 @@ const BASE_JSDB_URL = "http://localhost:3000/";
  * TODO change dasic url later
  * @type {string}
  */
-const EXPRESS_SERVER_URL = "http://10.61.40.181:4000/";
+const EXPRESS_SERVER_URL = "http://10.61.20.60:4000/";
 const DIVIDER = "/";
 const SESSIONS = "sessions";
 const ACTIVE_SESSIONS = "activeSessions";

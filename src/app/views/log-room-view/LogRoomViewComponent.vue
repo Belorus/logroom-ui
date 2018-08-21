@@ -8,8 +8,6 @@
       <div class="content_wrapper">
         <div class="content_inner" ref="scrollableInner">
           <logs-list v-if="logsArray.length > 0" :logsData="logsArray"></logs-list>
-          <!--<logs-list v-if="storedSessionLogs.length > 0" :logsData="storedSessionLogs"></logs-list>-->
-          <!--<logs-list v-if="revercedLogs.length > 0" :logsData="revercedLogs"></logs-list>-->
         </div>
       </div>
     </div>
@@ -20,7 +18,7 @@
   import {mapActions, mapGetters} from "vuex";
   import HeaderComponent from "../../components/header-component/HeaderComponent";
   import SidebarMainComponent from "../../components/sidebar-component/SidebarMainComponent";
-  import LogsListComponent from "../../components/log-room-component/LogsListComponent";
+  import LogsListComponent from "../../components/logs-list-component/LogsListComponent";
   import {throttle} from "../../shared/utils/utils";
   import {httpWrapper} from "../../http/http-wrapper";
   import {IS_OLD_LOGS_REQUIRED, OLD_LOGS_LIMIT, DISPLAYED_LOGS_LIMIT} from "../../shared/config-util/config-util";
@@ -65,12 +63,9 @@
       ...mapGetters({
         isGetSessionsError: 'sessionsGetError',
         storedSessionLogs: 'getSessionLogs',
-        runtimeStoredLogs: 'getRuntimeStoredLogsGetter',
         getSessionLogsByFrameIndexes: 'getSessionLogsByFrameIndexes'
       }),
-      revercedLogs() {
-        return this.logsArray;
-      }
+
     },
     methods: {
       ...mapActions([
@@ -91,95 +86,90 @@
         this.$socket.emit('SOCKET_F_STOP_LISTEN_SESSION', {sessionId: this.currentSessionId});
       },
       receiveLogsHandler(logsData) {
-        console.log(logsData.logs.length, 'NEW LOGS LENGTH');
-
-        if (!this.isRuntimeConcatLogsFlag) {
-          this.frameStartIndex = this.frameStartIndex + logsData.logs.length;
-          console.log(this.frameStartIndex, 'this.frameStartIndex');
-        }
-
-        this.recordSessionLogsAction({
+        let logsToSave = {
           logs: logsData.logs,
           isOld: !!logsData.isOld
-        });
+        };
+        let newLogsCount = logsData.logs.length;
 
+        this.startIndexShiftsOnReceivingLogs(newLogsCount);
+        this.recordSessionLogsAction(logsToSave);
         this.logsArray = this.getSessionLogsByFrameIndexes(this.frameStartIndex, this.frameStartIndex + DISPLAYED_LOGS_LIMIT);
-
+      },
+      startIndexShiftsOnReceivingLogs(shiftStep) {
+        if (!this.isRuntimeConcatLogsFlag) {
+          this.frameStartIndex = this.frameStartIndex + shiftStep;
+        }
       },
       handleLogsLoadOnScroll() {
         let scrollDistance = this.scrollableInner.scrollTop;
         let scrollHeight = this.scrollableInner.scrollHeight;
         let offsetHeight = this.scrollableInner.offsetHeight;
 
-        if (scrollDistance > 0 && scrollDistance < 30) {
+        let isContainerScrolledDown = scrollDistance > 0 && scrollDistance < 30;
+        let isContainerTopReached = scrollDistance <= 0;
+        let isContainerBottomReached = scrollDistance >= scrollHeight - offsetHeight;
+
+        if (isContainerScrolledDown) {
           console.warn('SCROLL DOWN STARTED');
           this.isRuntimeConcatLogsFlag = false;
         }
 
-        if (scrollDistance <= 0) {
-          console.warn('TOP REACHED!', this.runtimeStoredLogs.length);
+        if (isContainerTopReached) {
+          console.warn('TOP REACHED!');
           this.isRuntimeConcatLogsFlag = true;
-
-          if(this.frameStartIndex > 0) {
-            this.scrollableInner.scrollTop = scrollHeight/2;
-
-            let startIndex = this.frameStartIndex < DISPLAYED_LOGS_LIMIT / 2
-              ? 0
-              : this.frameStartIndex - DISPLAYED_LOGS_LIMIT / 2;
-
-            let endIndex = this.frameStartIndex > 0
-              ? this.frameStartIndex + DISPLAYED_LOGS_LIMIT / 2
-              : this.frameStartIndex + DISPLAYED_LOGS_LIMIT;
-            this.logsArray = this.getSessionLogsByFrameIndexes(startIndex, endIndex);
-
-            this.frameStartIndex = startIndex;
-          }
+          this.topReachedCalculateDisplayedLogs(scrollHeight);
         }
 
-        if (scrollDistance >= (scrollHeight - offsetHeight)) {
+        if (isContainerBottomReached) {
+          console.log('BOTTOM REACHED!', offsetHeight, this.frameStartIndex);
+          this.bottomReachedCalculateDisplayedLogs();
+        }
+      },
+      topReachedCalculateStartIndex() {
+        return this.frameStartIndex < DISPLAYED_LOGS_LIMIT / 2
+          ? 0
+          : this.frameStartIndex - DISPLAYED_LOGS_LIMIT / 2;
+      },
+      topReachedCalculateEndIndex() {
+        return this.frameStartIndex > 0
+          ? this.frameStartIndex + DISPLAYED_LOGS_LIMIT / 2
+          : this.frameStartIndex + DISPLAYED_LOGS_LIMIT;
+      },
+      topReachedCalculateDisplayedLogs(scrollHeight) {
+        if(this.frameStartIndex > 0) {
+          let startIndex = this.topReachedCalculateStartIndex();
+          let endIndex = this.topReachedCalculateEndIndex();
 
-          console.log('BOTTOM REACHED!', offsetHeight);
+          this.scrollableInner.scrollTop = scrollHeight/2;
+          this.logsArray = this.getSessionLogsByFrameIndexes(startIndex, endIndex);
 
-          if(this.logsArray[this.logsArray.length - 1].seqNumber > 1) {
-            this.getOldLogsPackHandler();
+          this.frameStartIndex = startIndex;
+        }
+      },
+      bottomReachedAddMoreLogs() {
+        let startIndex = this.frameStartIndex + DISPLAYED_LOGS_LIMIT/2;
+        let endIndex = this.frameStartIndex + DISPLAYED_LOGS_LIMIT + DISPLAYED_LOGS_LIMIT/2;
 
-            this.scrollableInner.scrollTop = scrollHeight/2 - offsetHeight;
+        this.logsArray = this.getSessionLogsByFrameIndexes(startIndex, endIndex);
+        this.frameStartIndex = startIndex;
+      },
+      bottomReachedCalculateDisplayedLogs(scrollHeight, offsetHeight) {
+        let isLogsShouldBeAddedBottomCase = this.logsArray[this.logsArray.length - 1].seqNumber > 1;
 
-            setTimeout(()=>{
-              let startIndex = this.frameStartIndex + DISPLAYED_LOGS_LIMIT/2 > this.storedSessionLogs.length - DISPLAYED_LOGS_LIMIT
-                ? this.storedSessionLogs.length - DISPLAYED_LOGS_LIMIT - 2
-                : this.frameStartIndex + DISPLAYED_LOGS_LIMIT/2;
+        if(isLogsShouldBeAddedBottomCase) {
+          this.scrollableInner.scrollTop = scrollHeight/2 - offsetHeight;
 
-              let endIndex = this.frameStartIndex + DISPLAYED_LOGS_LIMIT/2 > this.storedSessionLogs.length - DISPLAYED_LOGS_LIMIT
-                ? this.storedSessionLogs.length - 1
-                : this.frameStartIndex + DISPLAYED_LOGS_LIMIT + DISPLAYED_LOGS_LIMIT/2;
-
-              this.logsArray = this.getSessionLogsByFrameIndexes(
-                this.frameStartIndex + DISPLAYED_LOGS_LIMIT/2, this.frameStartIndex + DISPLAYED_LOGS_LIMIT + DISPLAYED_LOGS_LIMIT/2
-              );
-              this.frameStartIndex = startIndex;
-
-            }, 100);
-          }
-
-
-          // this.scrollableInner.scrollTop = scrollHeight/2 - offsetHeight;
-          // setTimeout(()=>{
-          //   this.logsArray = this.getSessionLogsByFrameIndexes(
-          //     this.frameStartIndex + DISPLAYED_LOGS_LIMIT/2, this.frameStartIndex + DISPLAYED_LOGS_LIMIT + DISPLAYED_LOGS_LIMIT/2
-          //   );
-          //   this.frameStartIndex = this.frameStartIndex + DISPLAYED_LOGS_LIMIT/2;
-          // },100)
-
-
-
-
+          this.getOldLogsPackHandler();
+          this.bottomReachedAddMoreLogs();
         }
       },
       getOldLogsPackHandler() {
         let lastSeqNumber = this.storedSessionLogs[this.storedSessionLogs.length - 1].seqNumber - 1;
+        let lastPanitedLogsSeqNumber = this.logsArray[this.logsArray.length - 1].seqNumber - 1;
+        let isHttpRequestRequired = lastSeqNumber + DISPLAYED_LOGS_LIMIT*2 + 1 > lastPanitedLogsSeqNumber;
 
-        if (lastSeqNumber > 0) {
+        if (lastSeqNumber > 0 && isHttpRequestRequired) {
           let logsData = {
             sessionId: this.currentSessionId,
             startFrom: lastSeqNumber,

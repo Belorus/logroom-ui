@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p v-for="(log, index) in logsData" :key="index" class="list-item" :ref="log.seqNumber">
+    <p v-for="(log, index) in logsData" :key="log.seqNumber" class="list-item" :ref="log.seqNumber">
       <b style="font-size: 22px;">{{log.seqNumber}}</b>
       <!--{{formattedTimestamp(log.timestamp)}} | {{log.level}} | {{log.thread}} | {{log.tag}}: {{log.message}}-->
     </p>
