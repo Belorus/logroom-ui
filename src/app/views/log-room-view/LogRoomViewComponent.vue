@@ -118,28 +118,18 @@
         if (isContainerTopReached) {
           console.warn('TOP REACHED!');
           this.isRuntimeConcatLogsFlag = true;
-          this.topReachedCalculateDisplayedLogs(scrollHeight);
+          this.topCalculateDisplayedLogs(scrollHeight);
         }
 
         if (isContainerBottomReached) {
           console.log('BOTTOM REACHED!', offsetHeight, this.frameStartIndex);
-          this.bottomReachedCalculateDisplayedLogs();
+          this.bottomCalculateDisplayedLogs();
         }
       },
-      topReachedCalculateStartIndex() {
-        return this.frameStartIndex < DISPLAYED_LOGS_LIMIT / 2
-          ? 0
-          : this.frameStartIndex - DISPLAYED_LOGS_LIMIT / 2;
-      },
-      topReachedCalculateEndIndex() {
-        return this.frameStartIndex > 0
-          ? this.frameStartIndex + DISPLAYED_LOGS_LIMIT / 2
-          : this.frameStartIndex + DISPLAYED_LOGS_LIMIT;
-      },
-      topReachedCalculateDisplayedLogs(scrollHeight) {
+      topCalculateDisplayedLogs(scrollHeight) {
         if(this.frameStartIndex > 0) {
-          let startIndex = this.topReachedCalculateStartIndex();
-          let endIndex = this.topReachedCalculateEndIndex();
+          let startIndex = this.topCalculateStartIndex();
+          let endIndex = this.topCalculateEndIndex();
 
           this.scrollableInner.scrollTop = scrollHeight/2;
           this.logsArray = this.getSessionLogsByFrameIndexes(startIndex, endIndex);
@@ -147,22 +137,35 @@
           this.frameStartIndex = startIndex;
         }
       },
-      bottomReachedAddMoreLogs() {
-        let startIndex = this.frameStartIndex + DISPLAYED_LOGS_LIMIT/2;
-        let endIndex = this.frameStartIndex + DISPLAYED_LOGS_LIMIT + DISPLAYED_LOGS_LIMIT/2;
-
-        this.logsArray = this.getSessionLogsByFrameIndexes(startIndex, endIndex);
-        this.frameStartIndex = startIndex;
+      topCalculateStartIndex() {
+        return this.frameStartIndex < DISPLAYED_LOGS_LIMIT / 2
+          ? 0
+          : this.frameStartIndex - DISPLAYED_LOGS_LIMIT / 2;
       },
-      bottomReachedCalculateDisplayedLogs(scrollHeight, offsetHeight) {
+      topCalculateEndIndex() {
+        return this.frameStartIndex > 0
+          ? this.frameStartIndex + DISPLAYED_LOGS_LIMIT / 2
+          : this.frameStartIndex + DISPLAYED_LOGS_LIMIT;
+      },
+      bottomCalculateDisplayedLogs() {
+        let scrollHeight = this.scrollableInner.scrollHeight;
+        let offsetHeight = this.scrollableInner.offsetHeight;
+
         let isLogsShouldBeAddedBottomCase = this.logsArray[this.logsArray.length - 1].seqNumber > 1;
 
         if(isLogsShouldBeAddedBottomCase) {
           this.scrollableInner.scrollTop = scrollHeight/2 - offsetHeight;
 
           this.getOldLogsPackHandler();
-          this.bottomReachedAddMoreLogs();
+          this.bottomAddMoreLogs();
         }
+      },
+      bottomAddMoreLogs() {
+        let startIndex = this.frameStartIndex + DISPLAYED_LOGS_LIMIT/2;
+        let endIndex = this.frameStartIndex + DISPLAYED_LOGS_LIMIT + DISPLAYED_LOGS_LIMIT/2;
+
+        this.logsArray = this.getSessionLogsByFrameIndexes(startIndex, endIndex);
+        this.frameStartIndex = startIndex;
       },
       getOldLogsPackHandler() {
         let lastSeqNumber = this.storedSessionLogs[this.storedSessionLogs.length - 1].seqNumber - 1;
