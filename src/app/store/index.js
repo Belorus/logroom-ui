@@ -7,7 +7,6 @@ const storage = {
     sessions: [],
     isSessionsGetErrorOccured: false,
     sessionLogs: [],
-    bufferedLogs: [],
     activeSessionId: null
   },
   mutations: mutations,

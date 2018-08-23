@@ -11,11 +11,8 @@ const getters = {
   getSessionLogs: state => {
     return state.sessionLogs;
   },
-  getBufferedLogsLength: state => {
-    return state.bufferedLogs.length;
-  },
-  getSessionDetailsGetter: state => {
-    return state.sessions.find(session => session.id === state.activeSessionId);
+  getSessionLogsByFrameIndexes: state => (startIndex, endIndex) => {
+    return state.sessionLogs.slice(startIndex, endIndex);
   },
   getSessionDetailsByIdGetter: state => sessionId => {
     return state.sessions.find(session => session.id === sessionId);

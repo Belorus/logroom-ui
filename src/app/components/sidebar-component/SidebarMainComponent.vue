@@ -4,17 +4,25 @@
       <el-row class="sidebar_section">
         <session-details :sessionId="currentSessionId"></session-details>
       </el-row>
+      <el-row class="sidebar_section">
+        <el-button type="success" @click="downloadLogFile">Download Log File</el-button>
+      </el-row>
+      {{downloadUrl}}
+      <a href="" target="_blank" ref="downloadLinkElement" class="download_link"></a>
     </div>
   </div>
 </template>
 
 <script>
   import SessionDetailsComponent from "../../components/session-details/SessionDetailsComponent";
+  import {httpWrapper} from "../../http/http-wrapper";
 
   export default {
     data() {
       return {
         currentSessionId: null,
+        downloadUrl: null,
+        downloadLinkElement: HTMLElement
       }
     },
     components: {
@@ -22,6 +30,14 @@
     },
     created() {
       this.currentSessionId = this.$route.params.id;
+    },
+    methods: {
+      downloadLogFile() {
+        httpWrapper.getLogsFile(this.currentSessionId, (url)=> {
+            this.$refs.downloadLinkElement.href = url;
+            this.$refs.downloadLinkElement.click();
+        });
+      }
     }
   }
 </script>
@@ -46,5 +62,13 @@
     &:first-child {
       border-top: none;
     }
+    .el-button {
+      margin-top: 20px;
+    }
+  }
+  .download_link {
+    opacity: 0;
+    width: 0;
+    height: 0;
   }
 </style>
