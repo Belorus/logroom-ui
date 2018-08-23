@@ -1,44 +1,20 @@
 <template>
   <div>
-    <p v-for="(log, index) in logsData" :key="log.seqNumber" class="list-item" :ref="log.seqNumber">
-      <b style="font-size: 22px;">{{log.seqNumber}}</b>
-      <!--{{formattedTimestamp(log.timestamp)}} | {{log.level}} | {{log.thread}} | {{log.tag}}: {{log.message}}-->
-    </p>
+    <div v-for="log in logsData" :key="log.seqNumber">
+      <single-log :log="log"></single-log>
+    </div>
   </div>
 </template>
 
 <script>
-  import {mapActions} from "vuex";
-  import {formattedTimestampUtil} from "../../shared/utils/utils";
+  import SingleLogComponent from "./single-log-component/SingleLogComponent";
 
   export default {
     props: {
       logsData: Array
     },
-    data() {
-      return {
-        lazyLogsStep: 1
-      }
-    },
-    methods: {
-      ...mapActions([
-        'setNewLogAction'
-      ]),
-      formattedTimestamp(timestampData) {
-        return formattedTimestampUtil(timestampData);
-      }
+    components: {
+      'single-log': SingleLogComponent
     }
   }
 </script>
-
-<style lang="scss" scoped>
-
-  .list-item {
-    -webkit-margin-before: 0.4em;
-    -webkit-margin-after: 0.4em;
-    -webkit-margin-start: 0;
-    -webkit-margin-end: 0;
-    font-family: monospace;
-    font-size: 11pt;
-  }
-</style>

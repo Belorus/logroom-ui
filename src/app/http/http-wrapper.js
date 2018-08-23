@@ -12,6 +12,7 @@ const DIVIDER = "/";
 const SESSIONS = "sessions";
 const ACTIVE_SESSIONS = "activeSessions";
 const LOGS = "logs";
+const SESSION_LOGS_FILE_LINK = "sessionLogsFileLink";
 
 class HttpWrapperClass {
   getActiveSessions(callback, errHandler) {
@@ -30,7 +31,20 @@ class HttpWrapperClass {
         params: logsData
       })
       .then(res => {
-        callback(res.data[0])
+        callback(res.data)
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  }
+  getLogsFile(sessionId, callback) {
+    let sessionData = {
+      sessionId: sessionId
+    };
+    axios
+      .get(EXPRESS_SERVER_URL + SESSION_LOGS_FILE_LINK, {params: sessionData})
+      .then(res => {
+        callback(res.data);
       })
       .catch(err => {
         console.log(err);

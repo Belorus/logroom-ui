@@ -20,7 +20,6 @@ const mutations = {
     state.activeSessionId = payload ? payload.sessionId : null;
   },
   [RECORD_SESSION_LOGS_MUTATION](state, payload) {
-    console.log(RECORD_SESSION_LOGS_MUTATION, payload);
     function concatOldLogs() {
       return state.sessionLogs.concat(payload.logs);
     }

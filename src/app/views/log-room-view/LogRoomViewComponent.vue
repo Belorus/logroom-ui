@@ -111,18 +111,14 @@
         let isContainerBottomReached = scrollDistance >= scrollHeight - offsetHeight;
 
         if (isContainerScrolledDown) {
-          console.warn('SCROLL DOWN STARTED');
           this.isRuntimeConcatLogsFlag = false;
         }
 
         if (isContainerTopReached) {
-          console.warn('TOP REACHED!');
-          this.isRuntimeConcatLogsFlag = true;
           this.topCalculateDisplayedLogs(scrollHeight);
         }
 
         if (isContainerBottomReached) {
-          console.log('BOTTOM REACHED!', offsetHeight, this.frameStartIndex);
           this.bottomCalculateDisplayedLogs();
         }
       },
@@ -135,6 +131,8 @@
           this.logsArray = this.getSessionLogsByFrameIndexes(startIndex, endIndex);
 
           this.frameStartIndex = startIndex;
+        } else {
+          this.isRuntimeConcatLogsFlag = true;
         }
       },
       topCalculateStartIndex() {
@@ -154,10 +152,10 @@
         let isLogsShouldBeAddedBottomCase = this.logsArray[this.logsArray.length - 1].seqNumber > 1;
 
         if(isLogsShouldBeAddedBottomCase) {
-          this.scrollableInner.scrollTop = scrollHeight/2 - offsetHeight;
-
           this.getOldLogsPackHandler();
           this.bottomAddMoreLogs();
+
+          this.scrollableInner.scrollTop = scrollHeight/2 - offsetHeight;
         }
       },
       bottomAddMoreLogs() {
@@ -180,7 +178,6 @@
           };
 
           httpWrapper.getPackOfOldLogs(logsData, logsResponse => {
-            console.warn(logsResponse, ' - logsResponse');
             this.recordSessionLogsAction({
               logs: logsResponse,
               isOld: true
