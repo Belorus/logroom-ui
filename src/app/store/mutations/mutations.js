@@ -3,7 +3,9 @@ import {
   ERROR_GET_SESSION,
   SET_ACTIVE_SESSION,
   ADD_NEW_LOG_TO_SESSION,
-  RECORD_SESSION_LOGS_MUTATION
+  RECORD_SESSION_LOGS_MUTATION,
+  CLEAR_SESSION_LOGS,
+  CLEAR_ACTIVE_SESSIONS
 } from "./mutation-types";
 
 const mutations = {
@@ -18,6 +20,13 @@ const mutations = {
   },
   [SET_ACTIVE_SESSION](state, payload) {
     state.activeSessionId = payload ? payload.sessionId : null;
+  },
+  [CLEAR_SESSION_LOGS](state) {
+    state.sessionLogs = [];
+  },
+  [CLEAR_ACTIVE_SESSIONS](state) {
+    console.log('SESSSIONS CLEARED!!!');
+    state.sessions = [];
   },
   [RECORD_SESSION_LOGS_MUTATION](state, payload) {
     function concatOldLogs() {

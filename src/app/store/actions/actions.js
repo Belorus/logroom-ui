@@ -3,7 +3,9 @@ import {
   ERROR_GET_SESSION,
   ADD_NEW_LOG_TO_SESSION,
   SET_ACTIVE_SESSION,
-  RECORD_SESSION_LOGS_MUTATION
+  RECORD_SESSION_LOGS_MUTATION,
+  CLEAR_SESSION_LOGS,
+  CLEAR_ACTIVE_SESSIONS
 } from "../mutations/mutation-types";
 
 const actions = {
@@ -13,6 +15,12 @@ const actions = {
   },
   setActiveSessionId({commit}, payload) {
     commit(SET_ACTIVE_SESSION, payload);
+  },
+  clearSessionLogs({commit}) {
+    commit(CLEAR_SESSION_LOGS);
+  },
+  clearActiveSessions({commit}) {
+    commit(CLEAR_ACTIVE_SESSIONS);
   },
   setNewLogAction({commit}, payload) {
     if (this.state.activeSessionId === payload.logData.session_related) {

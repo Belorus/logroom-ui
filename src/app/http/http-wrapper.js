@@ -1,13 +1,11 @@
 import axios from "axios/index";
 
-const BASE_URL = 'http://10.61.20.89:8080/push_log';
-
 const BASE_JSDB_URL = "http://localhost:3000/";
 /**
  * TODO change dasic url later
  * @type {string}
  */
-const EXPRESS_SERVER_URL = "http://10.61.20.60:4000/";
+const EXPRESS_SERVER_URL = "http://10.61.20.114:4000/";
 const DIVIDER = "/";
 const SESSIONS = "sessions";
 const ACTIVE_SESSIONS = "activeSessions";

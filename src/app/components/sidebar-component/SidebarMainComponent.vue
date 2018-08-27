@@ -3,17 +3,22 @@
     <div class="sidebar_inner">
       <el-row class="sidebar_section">
         <session-details :sessionId="currentSessionId"></session-details>
+        <el-button
+          icon="el-icon-share"
+          @click="copyToClipboard">
+          Copy Session Link
+        </el-button>
       </el-row>
       <el-row class="sidebar_section">
-        <el-button type="success" @click="downloadLogFile">Download Log File</el-button>
+        <el-button icon="el-icon-download" type="success" @click="downloadLogFile">Download Log File</el-button>
       </el-row>
-      {{downloadUrl}}
       <a href="" target="_blank" ref="downloadLinkElement" class="download_link"></a>
     </div>
   </div>
 </template>
 
 <script>
+  import {Message} from 'element-ui';
   import SessionDetailsComponent from "../../components/session-details/SessionDetailsComponent";
   import {httpWrapper} from "../../http/http-wrapper";
 
@@ -36,6 +41,23 @@
         httpWrapper.getLogsFile(this.currentSessionId, (url)=> {
             this.$refs.downloadLinkElement.href = url;
             this.$refs.downloadLinkElement.click();
+        });
+      },
+      copyToClipboard: function() {
+        const el = document.createElement('textarea');
+        el.value = location.href;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        this.showCopyNotification();
+      },
+      showCopyNotification() {
+        Message({
+          showClose: true,
+          center: true,
+          message: 'Session link copied to clipboard.',
+          type: 'success'
         });
       }
     }
