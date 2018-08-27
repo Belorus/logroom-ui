@@ -15,6 +15,7 @@
         this.getAllActiveSessionsByHttp();
       },
       disconnect: function () {
+        this.clearActiveSessions();
         console.log('socket to notification channel disconnected')
       },
       SOCKET_B_STOP_LISTEN_SESSION_SUCCESS: function () {
@@ -23,7 +24,8 @@
     },
     methods: {
       ...mapActions({
-        getActiveSessionsAction: 'getActiveSessionsAction'
+        getActiveSessionsAction: 'getActiveSessionsAction',
+        clearActiveSessions: 'clearActiveSessions'
       }),
       getAllActiveSessionsByHttp() {
         httpWrapper.getActiveSessions(

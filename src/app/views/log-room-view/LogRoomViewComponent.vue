@@ -54,6 +54,7 @@
     destroyed() {
       this.stopObserveSessionLogs();
       this.setActiveSessionId(null);
+      this.clearSessionLogs();
     },
     mounted() {
       this.scrollableInner = this.$refs['scrollableInner'];
@@ -72,7 +73,8 @@
         'setActiveSessionId',
         'storeRuntimeLogs',
         'resetRuntimeLogs',
-        'recordSessionLogsAction'
+        'recordSessionLogsAction',
+        'clearSessionLogs'
       ]),
       startObserveSessionLogs() {
         let listenSessionData = {
