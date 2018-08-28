@@ -20,12 +20,20 @@
       },
       SOCKET_B_STOP_LISTEN_SESSION_SUCCESS: function () {
         console.log('Session listenning stopped');
+      },
+      SOCKET_B_NEW_ACTIVE_SESSION: function (sessionData) {
+        this.addNewActiveSession(sessionData);
+      },
+      SOCKET_B_ACTIVE_SESSION_UPDATED: function (sessionData) {
+        this.updateSessionData(sessionData);
       }
     },
     methods: {
       ...mapActions({
         getActiveSessionsAction: 'getActiveSessionsAction',
-        clearActiveSessions: 'clearActiveSessions'
+        clearActiveSessions: 'clearActiveSessions',
+        addNewActiveSession: 'addNewActiveSession',
+        updateSessionData: 'updateSessionData'
       }),
       getAllActiveSessionsByHttp() {
         httpWrapper.getActiveSessions(

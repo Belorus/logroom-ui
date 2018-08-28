@@ -5,12 +5,22 @@ import {
   ADD_NEW_LOG_TO_SESSION,
   RECORD_SESSION_LOGS_MUTATION,
   CLEAR_SESSION_LOGS,
-  CLEAR_ACTIVE_SESSIONS
+  CLEAR_ACTIVE_SESSIONS,
+  ADD_NEW_ACTIVE_SESSION,
+  UPDATE_SESSION_DATA
 } from "./mutation-types";
 
 const mutations = {
   [ADD_SESSION](state, payload) {
-    payload.map(session => state.sessions.push(session))
+    payload.map(session => state.sessions.push(session));
+  },
+  [ADD_NEW_ACTIVE_SESSION](state, payload) {
+    state.sessions.push(payload);
+  },
+  [UPDATE_SESSION_DATA](state, payload){
+    state.sessions = state.sessions
+      .filter(session => session.id !== payload.id);
+    state.sessions.push(payload);
   },
   [ERROR_GET_SESSION](state, payload) {
     state.isSessionsGetErrorOccured = payload;
