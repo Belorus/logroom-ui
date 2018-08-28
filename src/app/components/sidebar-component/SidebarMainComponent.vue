@@ -12,7 +12,6 @@
       <el-row class="sidebar_section">
         <el-button icon="el-icon-download" type="success" @click="downloadLogFile">Download Log File</el-button>
       </el-row>
-      <a href="" target="_blank" ref="downloadLinkElement" class="download_link"></a>
     </div>
   </div>
 </template>
@@ -25,9 +24,7 @@
   export default {
     data() {
       return {
-        currentSessionId: null,
-        downloadUrl: null,
-        downloadLinkElement: HTMLElement
+        currentSessionId: null
       }
     },
     components: {
@@ -38,10 +35,7 @@
     },
     methods: {
       downloadLogFile() {
-        httpWrapper.getLogsFile(this.currentSessionId, (url)=> {
-            this.$refs.downloadLinkElement.href = url;
-            this.$refs.downloadLinkElement.click();
-        });
+        httpWrapper.getLogsFile(this.currentSessionId);
       },
       copyToClipboard: function() {
         const el = document.createElement('textarea');
@@ -87,10 +81,5 @@
     .el-button {
       margin-top: 20px;
     }
-  }
-  .download_link {
-    opacity: 0;
-    width: 0;
-    height: 0;
   }
 </style>

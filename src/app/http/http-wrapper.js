@@ -23,6 +23,7 @@ class HttpWrapperClass {
         errHandler(err);
       })
   }
+
   getPackOfOldLogs(logsData, callback) {
     axios
       .get(EXPRESS_SERVER_URL + 'sessionLogs', {
@@ -35,19 +36,37 @@ class HttpWrapperClass {
         console.log(err);
       })
   }
-  getLogsFile(sessionId, callback) {
+
+  getLogsFile(sessionId) {
     let sessionData = {
       sessionId: sessionId
     };
+
     axios
-      .get(EXPRESS_SERVER_URL + SESSION_LOGS_FILE_LINK, {params: sessionData})
-      .then(res => {
-        callback(res.data);
+      .get(EXPRESS_SERVER_URL + SESSION_LOGS_FILE_LINK, {
+        params: sessionData
       })
-      .catch(err => {
-        console.log(err);
+      .then((response) => {
+        this.getLogFileByLink(response.data, sessionId);
+      });
+  }
+
+  getLogFileByLink(logFileLink, sessionId) {
+    axios
+      .get(logFileLink, {
+        responseType: 'Blob'
+      })
+      .then(res => {
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `log-file-${sessionId}.txt`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       })
   }
+
   postNewLog(callback) {
     let logData = {
       content: "Log for device Xiaomi Mi2, QA session",
