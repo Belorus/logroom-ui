@@ -26,8 +26,8 @@
 <script>
   import {mapActions} from "vuex"
   import {Message} from "element-ui";
-  import SessionDetailsComponent from "../../components/session-details/SessionDetailsComponent";
-  import {httpWrapper} from "../../http/http-wrapper";
+  import SessionDetailsComponent from "Components/session-details/SessionDetailsComponent";
+  import {httpWrapper} from "Http/http-wrapper";
   import {
     TRACE_LOG_TYPE,
     DEBUG_LOG_TYPE,

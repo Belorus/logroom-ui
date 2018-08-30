@@ -40,7 +40,7 @@
 <script>
   import {mapGetters} from "vuex";
   import {LOG_ROOM_PAGE} from "../../router/pages";
-  import NavigationComponent from "../../components/navigation/NavigationComponent";
+  import NavigationComponent from "Components/navigation/NavigationComponent";
 
   export default {
     components: {

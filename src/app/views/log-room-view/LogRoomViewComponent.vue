@@ -16,11 +16,11 @@
 
 <script>
   import {mapActions, mapGetters} from "vuex";
-  import HeaderComponent from "../../components/header-component/HeaderComponent";
-  import SidebarMainComponent from "../../components/sidebar-component/SidebarMainComponent";
-  import LogsListComponent from "../../components/logs-list-component/LogsListComponent";
+  import HeaderComponent from "Components/header-component/HeaderComponent";
+  import SidebarMainComponent from "Components/sidebar-component/SidebarMainComponent";
+  import LogsListComponent from "Components/logs-list-component/LogsListComponent";
   import {throttle} from "../../shared/utils/utils";
-  import {httpWrapper} from "../../http/http-wrapper";
+  import {httpWrapper} from "Http/http-wrapper";
   import {IS_OLD_LOGS_REQUIRED, OLD_LOGS_LIMIT, DISPLAYED_LOGS_LIMIT} from "../../shared/config-util/config-util";
 
   export default {

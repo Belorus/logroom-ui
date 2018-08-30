@@ -21,7 +21,7 @@
 </template>
 
 <script>
-  import {formattedTimestampUtil} from "../../../shared/utils/utils";
+  import {formattedTimestampUtil} from "Utils/utils";
   import {
     TRACE_LOG_TYPE,
     DEBUG_LOG_TYPE,
