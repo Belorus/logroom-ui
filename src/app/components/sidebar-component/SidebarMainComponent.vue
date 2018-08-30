@@ -12,32 +12,68 @@
       <el-row class="sidebar_section">
         <el-button icon="el-icon-download" type="success" @click="downloadLogFile">Download Log File</el-button>
       </el-row>
+      <el-row class="sidebar_section">
+        <div class="filters_options_wrapper">
+          <el-checkbox-group v-model="checkedFilters" @change="handleCheckedFiltersChange">
+            <el-checkbox v-for="filter in filters" :label="filter" :key="filter">{{filter}}</el-checkbox>
+          </el-checkbox-group>
+        </div>
+      </el-row>
     </div>
   </div>
 </template>
 
 <script>
-  import {Message} from 'element-ui';
+  import {mapActions} from "vuex"
+  import {Message} from "element-ui";
   import SessionDetailsComponent from "../../components/session-details/SessionDetailsComponent";
   import {httpWrapper} from "../../http/http-wrapper";
+  import {
+    TRACE_LOG_TYPE,
+    DEBUG_LOG_TYPE,
+    WARN_LOG_TYPE,
+    INFO_LOG_TYPE,
+    ERROR_LOG_TYPE
+  } from "../../shared/config-util/config-util";
+
+  const filterLogsOptions = [TRACE_LOG_TYPE, DEBUG_LOG_TYPE, WARN_LOG_TYPE, INFO_LOG_TYPE, ERROR_LOG_TYPE];
 
   export default {
     data() {
       return {
-        currentSessionId: null
+        checkAll: false,
+        currentSessionId: null,
+        checkedFilters: [],
+        filters: filterLogsOptions
       }
     },
     components: {
-      'session-details':SessionDetailsComponent
+      'session-details': SessionDetailsComponent
     },
     created() {
       this.currentSessionId = this.$route.params.id;
     },
     methods: {
+      ...mapActions({
+        setLogsFilters: 'setLogsFilters'
+      }),
       downloadLogFile() {
         httpWrapper.getLogsFile(this.currentSessionId);
       },
-      copyToClipboard: function() {
+      handleCheckedFiltersChange(checkedFilters) {
+        let selectedFilters = [];
+        let checkedCount = checkedFilters.length;
+        this.checkAll = checkedCount === this.filters.length;
+
+        if (this.checkAll) {
+          this.setLogsFilters([]);
+        } else {
+          selectedFilters = [];
+          checkedFilters.map(filterValue => selectedFilters.push(filterValue));
+          this.setLogsFilters(selectedFilters);
+        }
+      },
+      copyToClipboard: function () {
         const el = document.createElement('textarea');
         el.value = location.href;
         document.body.appendChild(el);
@@ -72,6 +108,7 @@
       padding: 20px;
     }
   }
+
   .sidebar_section {
     margin: 10px 0 0 0;
     border-top: 1px solid #e6e6e6;
@@ -79,7 +116,19 @@
       border-top: none;
     }
     .el-button {
-      margin-top: 20px;
+      margin: 20px 0 10px;
     }
+  }
+
+  .filters_options_wrapper {
+    display: inline-block;
+    padding: 20px;
+  }
+
+  .el-checkbox {
+    width: 100%;
+    display: inline-block;
+    margin-bottom: 10px;
+    margin-left: 0;
   }
 </style>

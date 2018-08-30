@@ -16,6 +16,9 @@ const getters = {
   },
   getSessionDetailsByIdGetter: state => sessionId => {
     return state.sessions.find(session => session.id === sessionId);
+  },
+  getLogsFilterGetter: state => {
+    return state.logsDisplayFilters;
   }
 };
 

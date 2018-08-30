@@ -16,12 +16,19 @@
     </span>
     <span class="log_thread"> - {{log.thread}}</span>
     |
-    <p class="log_message"> <span class="log_tag">{{log.tag}}:</span> {{log.message}}</p>
+    <p class="log_message"><span class="log_tag">{{log.tag}}:</span> {{log.message}}</p>
   </div>
 </template>
 
 <script>
   import {formattedTimestampUtil} from "../../../shared/utils/utils";
+  import {
+    TRACE_LOG_TYPE,
+    DEBUG_LOG_TYPE,
+    WARN_LOG_TYPE,
+    INFO_LOG_TYPE,
+    ERROR_LOG_TYPE
+  } from "../../../shared/config-util/config-util";
 
   export default {
     name: 'single-log',
@@ -38,19 +45,19 @@
         return this.log.seqNumber % 2 === 0;
       },
       isTrace() {
-        return this.log.level === 'TRACE';
+        return this.log.level === TRACE_LOG_TYPE;
       },
       isDebug() {
-        return this.log.level === 'DEBUG';
+        return this.log.level === DEBUG_LOG_TYPE;
       },
       isWarn() {
-        return this.log.level === 'WARN ';
+        return this.log.level === WARN_LOG_TYPE;
       },
       isInfo() {
-        return this.log.level === 'INFO ';
+        return this.log.level === INFO_LOG_TYPE;
       },
       isError() {
-        return this.log.level === 'ERROR';
+        return this.log.level === ERROR_LOG_TYPE;
       }
     },
     methods: {

@@ -56,6 +56,18 @@
       this.setActiveSessionId(null);
       this.clearSessionLogs();
     },
+    watch: {
+      getLogsFilterGetter: function (filters) {
+        if(filters.length > 0) {
+          this.getLogsByFilter();
+        } else {
+          this.logsArray = [];
+          this.frameStartIndex = 0;
+          this.clearSessionLogs();
+          this.startObserveSessionLogs();
+        }
+      }
+    },
     mounted() {
       this.scrollableInner = this.$refs['scrollableInner'];
       this.scrollableInner.addEventListener('scroll', throttle(this.handleLogsLoadOnScroll, 15));
@@ -64,9 +76,9 @@
       ...mapGetters({
         isGetSessionsError: 'sessionsGetError',
         storedSessionLogs: 'getSessionLogs',
-        getSessionLogsByFrameIndexes: 'getSessionLogsByFrameIndexes'
+        getSessionLogsByFrameIndexes: 'getSessionLogsByFrameIndexes',
+        getLogsFilterGetter: 'getLogsFilterGetter'
       }),
-
     },
     methods: {
       ...mapActions([
@@ -92,6 +104,11 @@
           logs: logsData.logs,
           isOld: !!logsData.isOld
         };
+
+        if(this.getLogsFilterGetter.length > 0) {
+          logsData.logs = logsData.logs.filter(log => this.getLogsFilterGetter.includes(log.level));
+        }
+
         let newLogsCount = logsData.logs.length;
 
         this.startIndexShiftsOnReceivingLogs(newLogsCount);
@@ -120,7 +137,7 @@
           this.topCalculateDisplayedLogs(scrollHeight);
         }
 
-        if (isContainerBottomReached) {
+        if (isContainerBottomReached && this.logsArray.length >= DISPLAYED_LOGS_LIMIT) {
           this.bottomCalculateDisplayedLogs();
         }
       },
@@ -151,7 +168,9 @@
         let scrollHeight = this.scrollableInner.scrollHeight;
         let offsetHeight = this.scrollableInner.offsetHeight;
 
-        let isLogsShouldBeAddedBottomCase = this.logsArray[this.logsArray.length - 1].seqNumber > 1;
+        let isLogsShouldBeAddedBottomCase = this.logsArray.length > 0
+          ? this.logsArray[this.logsArray.length - 1].seqNumber > 1
+          : false;
 
         if(isLogsShouldBeAddedBottomCase) {
           this.getOldLogsPackHandler();
@@ -176,7 +195,7 @@
           let logsData = {
             sessionId: this.currentSessionId,
             startFrom: lastSeqNumber,
-            limit: OLD_LOGS_LIMIT
+            limit: OLD_LOGS_LIMIT,
           };
 
           httpWrapper.getPackOfOldLogs(logsData, logsResponse => {
@@ -186,6 +205,23 @@
             });
           });
         }
+      },
+      getLogsByFilter() {
+        this.logsArray = [];
+        this.frameStartIndex = 0;
+        this.clearSessionLogs();
+        let logsData = {
+          sessionId: this.currentSessionId,
+          // limit: OLD_LOGS_LIMIT,
+          levels: this.getLogsFilterGetter
+        };
+        httpWrapper.getPackOfOldLogs(logsData, logsResponse => {
+          this.recordSessionLogsAction({
+            logs: logsResponse,
+            isOld: true
+          });
+          this.logsArray = this.getSessionLogsByFrameIndexes(0, DISPLAYED_LOGS_LIMIT);
+        });
       }
     }
   }
