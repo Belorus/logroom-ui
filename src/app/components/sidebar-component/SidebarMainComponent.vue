@@ -17,6 +17,12 @@
           <el-checkbox-group v-model="checkedFilters" @change="handleCheckedFiltersChange">
             <el-checkbox v-for="filter in filters" :label="filter" :key="filter">{{filter}}</el-checkbox>
           </el-checkbox-group>
+          <el-button size="small"
+                     class="uncheck_btn"
+                     @click="uncheckAllFilters"
+                     v-if="checkedFilters.length > 0">
+            Uncheck All
+          </el-button>
         </div>
       </el-row>
     </div>
@@ -73,6 +79,10 @@
           this.setLogsFilters(selectedFilters);
         }
       },
+      uncheckAllFilters() {
+        this.checkedFilters = [];
+        this.setLogsFilters([]);
+      },
       copyToClipboard: function () {
         const el = document.createElement('textarea');
         el.value = location.href;
@@ -123,6 +133,9 @@
   .filters_options_wrapper {
     display: inline-block;
     padding: 20px;
+    .uncheck_btn {
+      margin-top: 10px;
+    }
   }
 
   .el-checkbox {

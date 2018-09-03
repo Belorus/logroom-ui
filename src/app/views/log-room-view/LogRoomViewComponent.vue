@@ -58,14 +58,9 @@
     },
     watch: {
       getLogsFilterGetter: function (filters) {
-        if(filters.length > 0) {
-          this.getLogsByFilter();
-        } else {
-          this.logsArray = [];
-          this.frameStartIndex = 0;
-          this.clearSessionLogs();
-          this.startObserveSessionLogs();
-        }
+        filters.length > 0
+          ? this.getLogsByFilter()
+          : this.reinitLogsReceiving();
       }
     },
     mounted() {
@@ -99,21 +94,29 @@
       stopObserveSessionLogs() {
         this.$socket.emit('SOCKET_F_STOP_LISTEN_SESSION', {sessionId: this.currentSessionId});
       },
+      reinitLogsReceiving() {
+        this.logsArray = [];
+        this.frameStartIndex = 0;
+        this.clearSessionLogs();
+        this.startObserveSessionLogs();
+      },
       receiveLogsHandler(logsData) {
         let logsToSave = {
           logs: logsData.logs,
           isOld: !!logsData.isOld
         };
 
-        if(this.getLogsFilterGetter.length > 0) {
-          logsData.logs = logsData.logs.filter(log => this.getLogsFilterGetter.includes(log.level));
-        }
-
+        this.selectReceivedLogsByfilters(logsData);
         let newLogsCount = logsData.logs.length;
 
         this.startIndexShiftsOnReceivingLogs(newLogsCount);
         this.recordSessionLogsAction(logsToSave);
         this.logsArray = this.getSessionLogsByFrameIndexes(this.frameStartIndex, this.frameStartIndex + DISPLAYED_LOGS_LIMIT);
+      },
+      selectReceivedLogsByfilters(logsData) {
+        if(this.getLogsFilterGetter.length > 0) {
+          logsData.logs = logsData.logs.filter(log => this.getLogsFilterGetter.includes(log.level));
+        }
       },
       startIndexShiftsOnReceivingLogs(shiftStep) {
         if (!this.isRuntimeConcatLogsFlag) {
@@ -212,7 +215,6 @@
         this.clearSessionLogs();
         let logsData = {
           sessionId: this.currentSessionId,
-          // limit: OLD_LOGS_LIMIT,
           levels: this.getLogsFilterGetter
         };
         httpWrapper.getPackOfOldLogs(logsData, logsResponse => {
