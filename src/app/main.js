@@ -19,7 +19,7 @@ Vue.use(ElementUI);
 Vue.use(VueRouter);
 Vue.use(Vuex);
 
-export const SocketInstance = socketio.connect('http://10.61.20.114:4000', { transports: ['websocket']});
+export const SocketInstance = socketio.connect('http://10.61.20.48:4000', { transports: ['websocket']});
 Vue.use(VueSocketio, SocketInstance);
 
 const router = new VueRouter({

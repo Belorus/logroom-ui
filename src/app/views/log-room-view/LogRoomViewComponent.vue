@@ -16,11 +16,11 @@
 
 <script>
   import {mapActions, mapGetters} from "vuex";
-  import HeaderComponent from "../../components/header-component/HeaderComponent";
-  import SidebarMainComponent from "../../components/sidebar-component/SidebarMainComponent";
-  import LogsListComponent from "../../components/logs-list-component/LogsListComponent";
+  import HeaderComponent from "Components/header-component/HeaderComponent";
+  import SidebarMainComponent from "Components/sidebar-component/SidebarMainComponent";
+  import LogsListComponent from "Components/logs-list-component/LogsListComponent";
   import {throttle} from "../../shared/utils/utils";
-  import {httpWrapper} from "../../http/http-wrapper";
+  import {httpWrapper} from "Http/http-wrapper";
   import {IS_OLD_LOGS_REQUIRED, OLD_LOGS_LIMIT, DISPLAYED_LOGS_LIMIT} from "../../shared/config-util/config-util";
 
   export default {
@@ -56,6 +56,13 @@
       this.setActiveSessionId(null);
       this.clearSessionLogs();
     },
+    watch: {
+      getLogsFilterGetter: function (filters) {
+        filters.length > 0
+          ? this.getLogsByFilter()
+          : this.reinitLogsReceiving();
+      }
+    },
     mounted() {
       this.scrollableInner = this.$refs['scrollableInner'];
       this.scrollableInner.addEventListener('scroll', throttle(this.handleLogsLoadOnScroll, 15));
@@ -64,9 +71,9 @@
       ...mapGetters({
         isGetSessionsError: 'sessionsGetError',
         storedSessionLogs: 'getSessionLogs',
-        getSessionLogsByFrameIndexes: 'getSessionLogsByFrameIndexes'
+        getSessionLogsByFrameIndexes: 'getSessionLogsByFrameIndexes',
+        getLogsFilterGetter: 'getLogsFilterGetter'
       }),
-
     },
     methods: {
       ...mapActions([
@@ -87,16 +94,29 @@
       stopObserveSessionLogs() {
         this.$socket.emit('SOCKET_F_STOP_LISTEN_SESSION', {sessionId: this.currentSessionId});
       },
+      reinitLogsReceiving() {
+        this.logsArray = [];
+        this.frameStartIndex = 0;
+        this.clearSessionLogs();
+        this.startObserveSessionLogs();
+      },
       receiveLogsHandler(logsData) {
         let logsToSave = {
           logs: logsData.logs,
           isOld: !!logsData.isOld
         };
+
+        this.selectReceivedLogsByfilters(logsData);
         let newLogsCount = logsData.logs.length;
 
         this.startIndexShiftsOnReceivingLogs(newLogsCount);
         this.recordSessionLogsAction(logsToSave);
         this.logsArray = this.getSessionLogsByFrameIndexes(this.frameStartIndex, this.frameStartIndex + DISPLAYED_LOGS_LIMIT);
+      },
+      selectReceivedLogsByfilters(logsData) {
+        if(this.getLogsFilterGetter.length > 0) {
+          logsData.logs = logsData.logs.filter(log => this.getLogsFilterGetter.includes(log.level));
+        }
       },
       startIndexShiftsOnReceivingLogs(shiftStep) {
         if (!this.isRuntimeConcatLogsFlag) {
@@ -120,7 +140,7 @@
           this.topCalculateDisplayedLogs(scrollHeight);
         }
 
-        if (isContainerBottomReached) {
+        if (isContainerBottomReached && this.logsArray.length >= DISPLAYED_LOGS_LIMIT) {
           this.bottomCalculateDisplayedLogs();
         }
       },
@@ -151,7 +171,9 @@
         let scrollHeight = this.scrollableInner.scrollHeight;
         let offsetHeight = this.scrollableInner.offsetHeight;
 
-        let isLogsShouldBeAddedBottomCase = this.logsArray[this.logsArray.length - 1].seqNumber > 1;
+        let isLogsShouldBeAddedBottomCase = this.logsArray.length > 0
+          ? this.logsArray[this.logsArray.length - 1].seqNumber > 1
+          : false;
 
         if(isLogsShouldBeAddedBottomCase) {
           this.getOldLogsPackHandler();
@@ -176,7 +198,7 @@
           let logsData = {
             sessionId: this.currentSessionId,
             startFrom: lastSeqNumber,
-            limit: OLD_LOGS_LIMIT
+            limit: OLD_LOGS_LIMIT,
           };
 
           httpWrapper.getPackOfOldLogs(logsData, logsResponse => {
@@ -186,6 +208,22 @@
             });
           });
         }
+      },
+      getLogsByFilter() {
+        this.logsArray = [];
+        this.frameStartIndex = 0;
+        this.clearSessionLogs();
+        let logsData = {
+          sessionId: this.currentSessionId,
+          levels: this.getLogsFilterGetter
+        };
+        httpWrapper.getPackOfOldLogs(logsData, logsResponse => {
+          this.recordSessionLogsAction({
+            logs: logsResponse,
+            isOld: true
+          });
+          this.logsArray = this.getSessionLogsByFrameIndexes(0, DISPLAYED_LOGS_LIMIT);
+        });
       }
     }
   }

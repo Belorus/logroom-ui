@@ -16,8 +16,8 @@
 <script>
   import {mapGetters} from "vuex";
   import {LOG_ROOM_PAGE} from "../../router/pages";
-  import NavigationComponent from "../../components/navigation/NavigationComponent";
-  import SessionDetailsComponent from "../../components/session-details/SessionDetailsComponent";
+  import NavigationComponent from "Components/navigation/NavigationComponent";
+  import SessionDetailsComponent from "Components/session-details/SessionDetailsComponent";
 
   export default {
     components: {

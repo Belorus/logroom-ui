@@ -5,9 +5,8 @@ const BASE_JSDB_URL = "http://localhost:3000/";
  * TODO change dasic url later
  * @type {string}
  */
-const EXPRESS_SERVER_URL = "http://10.61.20.114:4000/";
+const EXPRESS_SERVER_URL = "http://10.61.20.48:4000/";
 const DIVIDER = "/";
-const SESSIONS = "sessions";
 const ACTIVE_SESSIONS = "activeSessions";
 const LOGS = "logs";
 const SESSION_LOGS_FILE_LINK = "sessionLogsFileLink";
@@ -48,6 +47,9 @@ class HttpWrapperClass {
       })
       .then((response) => {
         this.getLogFileByLink(response.data, sessionId);
+      })
+      .catch(err => {
+        console.log('Could not get logs file link from server: ', err);
       });
   }
 

@@ -7,7 +7,8 @@ import {
   CLEAR_SESSION_LOGS,
   CLEAR_ACTIVE_SESSIONS,
   ADD_NEW_ACTIVE_SESSION,
-  UPDATE_SESSION_DATA
+  UPDATE_SESSION_DATA,
+  SET_LOGS_FILTERS
 } from "../mutations/mutation-types";
 
 const actions = {
@@ -17,6 +18,9 @@ const actions = {
   },
   addNewActiveSession({commit}, sessionObj) {
     commit(ADD_NEW_ACTIVE_SESSION, sessionObj);
+  },
+  setLogsFilters({commit}, payload) {
+    commit(SET_LOGS_FILTERS, payload);
   },
   updateSessionData({commit}, sessionObj) {
     commit(UPDATE_SESSION_DATA, sessionObj);
