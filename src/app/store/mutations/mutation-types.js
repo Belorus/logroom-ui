@@ -7,6 +7,8 @@ const SET_ACTIVE_SESSION = 'setActiveSession';
 const CLEAR_SESSION_LOGS = 'clearSessionLogs';
 const CLEAR_ACTIVE_SESSIONS = 'clearActiveSessions';
 const SET_LOGS_FILTERS = 'setLogsFilters';
+const SET_FILTERED_LOGS = 'setFilteredLogs';
+const RESET_FILTERED_LOGS = 'resetFilteredLogs';
 
 const RECORD_SESSION_LOGS_MUTATION = 'recordSessionLogsMutation';
 
@@ -20,5 +22,7 @@ export {
   CLEAR_ACTIVE_SESSIONS,
   ADD_NEW_ACTIVE_SESSION,
   UPDATE_SESSION_DATA,
-  SET_LOGS_FILTERS
+  SET_LOGS_FILTERS,
+  SET_FILTERED_LOGS,
+  RESET_FILTERED_LOGS
 };

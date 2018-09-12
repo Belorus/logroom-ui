@@ -26,6 +26,7 @@
   export default {
     sockets: {
       SOCKET_B_PUSH_LOGS: function (data) {
+        this.getAllSessionLogs(data);
         this.receiveLogsHandler(data);
       }
     },
@@ -72,16 +73,16 @@
         isGetSessionsError: 'sessionsGetError',
         storedSessionLogs: 'getSessionLogs',
         getSessionLogsByFrameIndexes: 'getSessionLogsByFrameIndexes',
-        getLogsFilterGetter: 'getLogsFilterGetter'
+        getLogsFilterGetter: 'getLogsFilterGetter',
+        getLastFilteredLogInStore: 'getLastFilteredLogInStore'
       }),
     },
     methods: {
       ...mapActions([
         'setActiveSessionId',
-        'storeRuntimeLogs',
-        'resetRuntimeLogs',
         'recordSessionLogsAction',
-        'clearSessionLogs'
+        'clearSessionLogs',
+        'setFilteredLogsAction'
       ]),
       startObserveSessionLogs() {
         let listenSessionData = {
@@ -97,26 +98,25 @@
       reinitLogsReceiving() {
         this.logsArray = [];
         this.frameStartIndex = 0;
-        this.clearSessionLogs();
-        this.startObserveSessionLogs();
+        this.logsArray = this.getSessionLogsByFrameIndexes(0, DISPLAYED_LOGS_LIMIT);
       },
       receiveLogsHandler(logsData) {
         let logsToSave = {
           logs: logsData.logs,
           isOld: !!logsData.isOld
         };
+        this.recordSessionLogsAction(logsToSave);
 
-        this.selectReceivedLogsByfilters(logsData);
-        let newLogsCount = logsData.logs.length;
+        let newLogsCount = 0;
+        if(this.getLogsFilterGetter.length > 0) {
+          newLogsCount = logsData.logs.filter(log => this.getLogsFilterGetter.includes(log.level)).length;
+          this.setFilteredLogsAction();
+        } else {
+          newLogsCount = logsData.logs.length;
+        }
 
         this.startIndexShiftsOnReceivingLogs(newLogsCount);
-        this.recordSessionLogsAction(logsToSave);
         this.logsArray = this.getSessionLogsByFrameIndexes(this.frameStartIndex, this.frameStartIndex + DISPLAYED_LOGS_LIMIT);
-      },
-      selectReceivedLogsByfilters(logsData) {
-        if(this.getLogsFilterGetter.length > 0) {
-          logsData.logs = logsData.logs.filter(log => this.getLogsFilterGetter.includes(log.level));
-        }
       },
       startIndexShiftsOnReceivingLogs(shiftStep) {
         if (!this.isRuntimeConcatLogsFlag) {
@@ -171,14 +171,12 @@
         let scrollHeight = this.scrollableInner.scrollHeight;
         let offsetHeight = this.scrollableInner.offsetHeight;
 
-        let isLogsShouldBeAddedBottomCase = this.logsArray.length > 0
-          ? this.logsArray[this.logsArray.length - 1].seqNumber > 1
-          : false;
+        let isLogsShouldBeAddedBottomCase = this.getLastFilteredLogInStore
+          ? this.logsArray[this.logsArray.length - 1].seqNumber !== this.getLastFilteredLogInStore.seqNumber
+          : this.logsArray[this.logsArray.length - 1].seqNumber > 1;
 
         if(isLogsShouldBeAddedBottomCase) {
-          this.getOldLogsPackHandler();
           this.bottomAddMoreLogs();
-
           this.scrollableInner.scrollTop = scrollHeight/2 - offsetHeight;
         }
       },
@@ -189,16 +187,17 @@
         this.logsArray = this.getSessionLogsByFrameIndexes(startIndex, endIndex);
         this.frameStartIndex = startIndex;
       },
-      getOldLogsPackHandler() {
-        let lastSeqNumber = this.storedSessionLogs[this.storedSessionLogs.length - 1].seqNumber - 1;
-        let lastPanitedLogsSeqNumber = this.logsArray[this.logsArray.length - 1].seqNumber - 1;
-        let isHttpRequestRequired = lastSeqNumber + DISPLAYED_LOGS_LIMIT*2 + 1 > lastPanitedLogsSeqNumber;
-
-        if (lastSeqNumber > 0 && isHttpRequestRequired) {
+      getLogsByFilter() {
+        this.logsArray = [];
+        this.frameStartIndex = 0;
+        this.logsArray = this.getSessionLogsByFrameIndexes(0, DISPLAYED_LOGS_LIMIT);
+      },
+      getAllSessionLogs(logsReceived) {
+        if(this.storedSessionLogs.length === 0) {
+          let lastLoadedLog = logsReceived.logs[logsReceived.logs.length - 1].seqNumber;
           let logsData = {
             sessionId: this.currentSessionId,
-            startFrom: lastSeqNumber,
-            limit: OLD_LOGS_LIMIT,
+            startFrom: lastLoadedLog - 1
           };
 
           httpWrapper.getPackOfOldLogs(logsData, logsResponse => {
@@ -208,22 +207,6 @@
             });
           });
         }
-      },
-      getLogsByFilter() {
-        this.logsArray = [];
-        this.frameStartIndex = 0;
-        this.clearSessionLogs();
-        let logsData = {
-          sessionId: this.currentSessionId,
-          levels: this.getLogsFilterGetter
-        };
-        httpWrapper.getPackOfOldLogs(logsData, logsResponse => {
-          this.recordSessionLogsAction({
-            logs: logsResponse,
-            isOld: true
-          });
-          this.logsArray = this.getSessionLogsByFrameIndexes(0, DISPLAYED_LOGS_LIMIT);
-        });
       }
     }
   }

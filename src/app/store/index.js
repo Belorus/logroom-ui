@@ -7,6 +7,7 @@ const storage = {
     sessions: [],
     isSessionsGetErrorOccured: false,
     sessionLogs: [],
+    filteredLogs: [],
     activeSessionId: null,
     logsDisplayFilters: []
   },

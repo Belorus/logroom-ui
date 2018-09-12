@@ -8,7 +8,9 @@ import {
   CLEAR_ACTIVE_SESSIONS,
   ADD_NEW_ACTIVE_SESSION,
   UPDATE_SESSION_DATA,
-  SET_LOGS_FILTERS
+  SET_LOGS_FILTERS,
+  SET_FILTERED_LOGS,
+  RESET_FILTERED_LOGS
 } from "./mutation-types";
 
 const mutations = {
@@ -40,10 +42,6 @@ const mutations = {
     state.sessions = [];
   },
   [RECORD_SESSION_LOGS_MUTATION](state, payload) {
-    if(state.logsDisplayFilters.length > 0) {
-      payload.logs = payload.logs.filter(log => state.logsDisplayFilters.includes(log.level));
-    }
-
     function concatOldLogs() {
       return state.sessionLogs.concat(payload.logs);
     }
@@ -52,12 +50,17 @@ const mutations = {
     }
 
     state.sessionLogs = payload.isOld ? concatOldLogs() : concatNewLogs();
-
   },
   [SET_LOGS_FILTERS](state, payload) {
     if(Array.isArray(payload)) {
       state.logsDisplayFilters = payload;
     }
+  },
+  [SET_FILTERED_LOGS](state) {
+    state.filteredLogs = state.sessionLogs.filter(log => state.logsDisplayFilters.includes(log.level));
+  },
+  [RESET_FILTERED_LOGS](state) {
+    state.filteredLogs = [];
   }
 };
 

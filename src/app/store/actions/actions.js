@@ -8,7 +8,9 @@ import {
   CLEAR_ACTIVE_SESSIONS,
   ADD_NEW_ACTIVE_SESSION,
   UPDATE_SESSION_DATA,
-  SET_LOGS_FILTERS
+  SET_LOGS_FILTERS,
+  SET_FILTERED_LOGS,
+  RESET_FILTERED_LOGS
 } from "../mutations/mutation-types";
 
 const actions = {
@@ -21,6 +23,18 @@ const actions = {
   },
   setLogsFilters({commit}, payload) {
     commit(SET_LOGS_FILTERS, payload);
+
+    if(payload.length > 0) {
+      commit(SET_FILTERED_LOGS);
+    } else {
+      commit(RESET_FILTERED_LOGS)
+    }
+  },
+  setFilteredLogsAction({commit}) {
+    commit(SET_FILTERED_LOGS);
+  },
+  resetFilteredLogsAction({commit}) {
+    commit(RESET_FILTERED_LOGS)
   },
   updateSessionData({commit}, sessionObj) {
     commit(UPDATE_SESSION_DATA, sessionObj);
