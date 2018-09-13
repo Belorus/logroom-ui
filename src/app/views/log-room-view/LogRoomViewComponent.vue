@@ -258,6 +258,8 @@
     margin-bottom: 80px;
     .content_inner {
       @include scrollable-inner;
+      @include inner-shadow;
+      border-bottom: 1px solid #e6e6e6;
       padding: 20px 20px 20px 30px;
       .not_found_block {
         text-align: center;

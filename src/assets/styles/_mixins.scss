@@ -26,6 +26,11 @@
   -moz-box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.1);
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.1);
 }
+@mixin inner-shadow {
+  -webkit-box-shadow: 8px 2px 12px 0px rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: 8px 2px 12px 0px rgba(0, 0, 0, 0.1);
+  box-shadow: 8px 2px 12px 0px rgba(0, 0, 0, 0.1);
+}
 
 @mixin text-ellipsis {
   max-width: 100%;
