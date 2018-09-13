@@ -10,7 +10,10 @@ import {
   UPDATE_SESSION_DATA,
   SET_LOGS_FILTERS,
   SET_FILTERED_LOGS,
-  RESET_FILTERED_LOGS
+  RESET_FILTERED_LOGS,
+  GET_LOGS_BY_TEXT_SEARCH,
+  SET_SEARCH_FILTER_STATE,
+  SET_SEARCH_STRING
 } from "../mutations/mutation-types";
 
 const actions = {
@@ -35,6 +38,16 @@ const actions = {
   },
   resetFilteredLogsAction({commit}) {
     commit(RESET_FILTERED_LOGS)
+  },
+  getLogsBySearchAction({commit}, payload) {
+    commit(SET_SEARCH_FILTER_STATE, payload.isSearchActive);
+    if(payload.searchString) {
+      commit(GET_LOGS_BY_TEXT_SEARCH, payload.searchString);
+    }
+    if(!payload.isSearchActive) {
+      commit(SET_FILTERED_LOGS);
+    }
+    commit(SET_SEARCH_STRING, payload.searchString);
   },
   updateSessionData({commit}, sessionObj) {
     commit(UPDATE_SESSION_DATA, sessionObj);

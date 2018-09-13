@@ -9,6 +9,9 @@ const CLEAR_ACTIVE_SESSIONS = 'clearActiveSessions';
 const SET_LOGS_FILTERS = 'setLogsFilters';
 const SET_FILTERED_LOGS = 'setFilteredLogs';
 const RESET_FILTERED_LOGS = 'resetFilteredLogs';
+const GET_LOGS_BY_TEXT_SEARCH = 'getLogsByTextSearch';
+const SET_SEARCH_FILTER_STATE = 'setSearchFilterState';
+const SET_SEARCH_STRING = 'setSearchString';
 
 const RECORD_SESSION_LOGS_MUTATION = 'recordSessionLogsMutation';
 
@@ -24,5 +27,8 @@ export {
   UPDATE_SESSION_DATA,
   SET_LOGS_FILTERS,
   SET_FILTERED_LOGS,
-  RESET_FILTERED_LOGS
+  RESET_FILTERED_LOGS,
+  GET_LOGS_BY_TEXT_SEARCH,
+  SET_SEARCH_FILTER_STATE,
+  SET_SEARCH_STRING
 };

@@ -10,7 +10,10 @@ import {
   UPDATE_SESSION_DATA,
   SET_LOGS_FILTERS,
   SET_FILTERED_LOGS,
-  RESET_FILTERED_LOGS
+  RESET_FILTERED_LOGS,
+  GET_LOGS_BY_TEXT_SEARCH,
+  SET_SEARCH_FILTER_STATE,
+  SET_SEARCH_STRING
 } from "./mutation-types";
 
 const mutations = {
@@ -57,10 +60,52 @@ const mutations = {
     }
   },
   [SET_FILTERED_LOGS](state) {
-    state.filteredLogs = state.sessionLogs.filter(log => state.logsDisplayFilters.includes(log.level));
+    if(state.logsDisplayFilters.length > 0) {
+      state.filteredLogs = state.sessionLogs.filter(log => state.logsDisplayFilters.includes(log.level));
+    } else {
+      state.filteredLogs = [];
+    }
   },
   [RESET_FILTERED_LOGS](state) {
     state.filteredLogs = [];
+  },
+  [GET_LOGS_BY_TEXT_SEARCH](state, payload) {
+    let isFilteredLogsPresent = state.filteredLogs.length === 0;
+
+    let isTypingBackWithFiltersOff = state.searchString
+      && payload.length < state.searchString.length
+      && state.logsDisplayFilters.length === 0;
+
+    let isTypingBackWithFiltersOn = state.searchString
+      && payload.length < state.searchString.length
+      && state.logsDisplayFilters.length > 0;
+
+    if(isFilteredLogsPresent || isTypingBackWithFiltersOff) {
+      state.filteredLogs = filterQueryFromAllLogs(payload);
+    } else if(isTypingBackWithFiltersOn) {
+      state.filteredLogs = filterQueryFromFilteredLogsTypingBackward(payload);
+    } else {
+      state.filteredLogs = filterQueryFromFilteredLogs(payload);
+    }
+
+    function filterQueryFromAllLogs(queryString) {
+      return state.sessionLogs.filter(log => log.message.toLowerCase().includes(queryString.toLowerCase()));
+    }
+    function filterQueryFromFilteredLogs(queryString) {
+      return state.filteredLogs.filter(log => log.message.toLowerCase().includes(queryString.toLowerCase()));
+    }
+    function filterQueryFromFilteredLogsTypingBackward(queryString) {
+      return state.sessionLogs.filter(log =>
+          state.logsDisplayFilters.includes(log.level)
+          && log.message.toLowerCase().includes(payload.toLowerCase())
+      );
+    }
+  },
+  [SET_SEARCH_FILTER_STATE](state, payload) {
+    state.isSearchFilterActive = payload;
+  },
+  [SET_SEARCH_STRING](state, payload) {
+    state.searchString = payload;
   }
 };
 

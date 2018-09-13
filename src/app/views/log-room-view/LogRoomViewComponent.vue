@@ -8,7 +8,18 @@
       <div class="content_wrapper">
         <div class="content_inner" ref="scrollableInner">
           <logs-list v-if="logsArray.length > 0" :logsData="logsArray"></logs-list>
+          <div v-if="isLogsFound && logsArray.length === 0" class="not_found_block">
+            <img src="http://theinspirationgrid.com/app/uploads/2017/03/art-arinze-stanley-10.jpg" alt="">
+            <!--<img src="https://cdn-images-1.medium.com/max/1600/0*AnVCpSvrAeldg3Rn." style="width: 100%;" alt="">-->
+            <p>Can't find any logs!</p>
+          </div>
         </div>
+        <el-input
+          class="search_input"
+          placeholder="Search logs..."
+          prefix-icon="el-icon-search"
+          v-model="instantSearchModel">
+        </el-input>
       </div>
     </div>
   </div>
@@ -19,7 +30,7 @@
   import HeaderComponent from "Components/header-component/HeaderComponent";
   import SidebarMainComponent from "Components/sidebar-component/SidebarMainComponent";
   import LogsListComponent from "Components/logs-list-component/LogsListComponent";
-  import {throttle} from "../../shared/utils/utils";
+  import {throttle, debounce} from "../../shared/utils/utils";
   import {httpWrapper} from "Http/http-wrapper";
   import {IS_OLD_LOGS_REQUIRED, OLD_LOGS_LIMIT, DISPLAYED_LOGS_LIMIT} from "../../shared/config-util/config-util";
 
@@ -28,6 +39,7 @@
       SOCKET_B_PUSH_LOGS: function (data) {
         this.getAllSessionLogs(data);
         this.receiveLogsHandler(data);
+        this.isLogsFound = true;
       }
     },
     data() {
@@ -36,7 +48,9 @@
         scrollableInner: HTMLElement,
         logsArray: [],
         isRuntimeConcatLogsFlag: true,
-        frameStartIndex: 0
+        frameStartIndex: 0,
+        instantSearchModel: '',
+        isLogsFound: false
       }
     },
     components: {
@@ -62,7 +76,15 @@
         filters.length > 0
           ? this.getLogsByFilter()
           : this.reinitLogsReceiving();
-      }
+      },
+      searchChanged: debounce(function (val) {
+        let searchData = {
+          searchString: val.length > 3 ? val : null,
+          isSearchActive: val.length > 3
+        };
+        this.getLogsBySearchAction(searchData);
+        this.logsArray = this.getSessionLogsByFrameIndexes(0, DISPLAYED_LOGS_LIMIT);
+      }, 400)
     },
     mounted() {
       this.scrollableInner = this.$refs['scrollableInner'];
@@ -76,13 +98,17 @@
         getLogsFilterGetter: 'getLogsFilterGetter',
         getLastFilteredLogInStore: 'getLastFilteredLogInStore'
       }),
+      searchChanged() {
+        return this.instantSearchModel;
+      }
     },
     methods: {
       ...mapActions([
         'setActiveSessionId',
         'recordSessionLogsAction',
         'clearSessionLogs',
-        'setFilteredLogsAction'
+        'setFilteredLogsAction',
+        'getLogsBySearchAction'
       ]),
       startObserveSessionLogs() {
         let listenSessionData = {
@@ -98,6 +124,7 @@
       reinitLogsReceiving() {
         this.logsArray = [];
         this.frameStartIndex = 0;
+        this.instantSearchModel = '';
         this.logsArray = this.getSessionLogsByFrameIndexes(0, DISPLAYED_LOGS_LIMIT);
       },
       receiveLogsHandler(logsData) {
@@ -108,7 +135,7 @@
         this.recordSessionLogsAction(logsToSave);
 
         let newLogsCount = 0;
-        if(this.getLogsFilterGetter.length > 0) {
+        if (this.getLogsFilterGetter.length > 0) {
           newLogsCount = logsData.logs.filter(log => this.getLogsFilterGetter.includes(log.level)).length;
           this.setFilteredLogsAction();
         } else {
@@ -145,11 +172,11 @@
         }
       },
       topCalculateDisplayedLogs(scrollHeight) {
-        if(this.frameStartIndex > 0) {
+        if (this.frameStartIndex > 0) {
           let startIndex = this.topCalculateStartIndex();
           let endIndex = this.topCalculateEndIndex();
 
-          this.scrollableInner.scrollTop = scrollHeight/2;
+          this.scrollableInner.scrollTop = scrollHeight / 2;
           this.logsArray = this.getSessionLogsByFrameIndexes(startIndex, endIndex);
 
           this.frameStartIndex = startIndex;
@@ -175,14 +202,14 @@
           ? this.logsArray[this.logsArray.length - 1].seqNumber !== this.getLastFilteredLogInStore.seqNumber
           : this.logsArray[this.logsArray.length - 1].seqNumber > 1;
 
-        if(isLogsShouldBeAddedBottomCase) {
+        if (isLogsShouldBeAddedBottomCase) {
           this.bottomAddMoreLogs();
-          this.scrollableInner.scrollTop = scrollHeight/2 - offsetHeight;
+          this.scrollableInner.scrollTop = scrollHeight / 2 - offsetHeight;
         }
       },
       bottomAddMoreLogs() {
-        let startIndex = this.frameStartIndex + DISPLAYED_LOGS_LIMIT/2;
-        let endIndex = this.frameStartIndex + DISPLAYED_LOGS_LIMIT + DISPLAYED_LOGS_LIMIT/2;
+        let startIndex = this.frameStartIndex + DISPLAYED_LOGS_LIMIT / 2;
+        let endIndex = this.frameStartIndex + DISPLAYED_LOGS_LIMIT + DISPLAYED_LOGS_LIMIT / 2;
 
         this.logsArray = this.getSessionLogsByFrameIndexes(startIndex, endIndex);
         this.frameStartIndex = startIndex;
@@ -193,7 +220,7 @@
         this.logsArray = this.getSessionLogsByFrameIndexes(0, DISPLAYED_LOGS_LIMIT);
       },
       getAllSessionLogs(logsReceived) {
-        if(this.storedSessionLogs.length === 0) {
+        if (this.storedSessionLogs.length === 0) {
           let lastLoadedLog = logsReceived.logs[logsReceived.logs.length - 1].seqNumber;
           let logsData = {
             sessionId: this.currentSessionId,
@@ -228,9 +255,25 @@
   .content_wrapper {
     position: relative;
     width: calc(100vw - 300px);
+    margin-bottom: 80px;
     .content_inner {
       @include scrollable-inner;
       padding: 20px 20px 20px 30px;
+      .not_found_block {
+        text-align: center;
+        font-size: 22px;
+        font-weight: bold;
+        img {
+          width: 100%;
+        }
+      }
+    }
+    .search_input {
+      position: absolute;
+      bottom: -60px;
+      width: calc(100% - 40px);
+      max-width: 1260px;
+      margin: 0 20px;
     }
   }
 

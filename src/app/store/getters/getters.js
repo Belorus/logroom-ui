@@ -14,7 +14,7 @@ const getters = {
   getSessionLogsByFrameIndexes: state => (startIndex, endIndex) => {
     let logsToReturn;
 
-    if(state.logsDisplayFilters.length > 0) {
+    if(state.logsDisplayFilters.length > 0 || state.isSearchFilterActive) {
       logsToReturn = state.filteredLogs.slice(startIndex, endIndex);
     } else {
       logsToReturn = state.sessionLogs.slice(startIndex, endIndex);

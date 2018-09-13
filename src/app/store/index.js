@@ -6,6 +6,8 @@ const storage = {
   state: {
     sessions: [],
     isSessionsGetErrorOccured: false,
+    isSearchFilterActive: false,
+    searchString: null,
     sessionLogs: [],
     filteredLogs: [],
     activeSessionId: null,

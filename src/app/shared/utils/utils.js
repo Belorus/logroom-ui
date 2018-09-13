@@ -9,6 +9,18 @@ function throttle(fn, interval) {
   };
 }
 
+function debounce(fn, interval) {
+  let timer;
+  return function debounced() {
+    clearTimeout(timer);
+    let args = arguments;
+    let that = this;
+    timer = setTimeout(function callOriginalFn() {
+      fn.apply(that, args);
+    }, interval);
+  };
+}
+
 function formattedTimestampUtil(timestampData) {
   let date = new Date(timestampData);
   let hours = date.getHours();
@@ -18,4 +30,4 @@ function formattedTimestampUtil(timestampData) {
   return hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2) + ':' + miliseconds.substr(-3);
 }
 
-export {throttle, formattedTimestampUtil};
+export {throttle, debounce, formattedTimestampUtil};
