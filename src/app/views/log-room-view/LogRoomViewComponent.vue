@@ -9,11 +9,18 @@
         <div class="content_inner" ref="scrollableInner">
           <logs-list v-if="logsArray.length > 0" :logsData="logsArray"></logs-list>
           <div v-if="isLogsFound && logsArray.length === 0" class="not_found_block">
-            <img src="http://theinspirationgrid.com/app/uploads/2017/03/art-arinze-stanley-10.jpg" alt="">
-            <!--<img src="https://cdn-images-1.medium.com/max/1600/0*AnVCpSvrAeldg3Rn." style="width: 100%;" alt="">-->
+            <!--<img src="http://theinspirationgrid.com/app/uploads/2017/03/art-arinze-stanley-10.jpg" alt="">-->
+            <img src="https://cdn-images-1.medium.com/max/1600/0*AnVCpSvrAeldg3Rn." alt="">
             <p>Can't find any logs!</p>
           </div>
         </div>
+        <el-button
+          class="back_to_top"
+          @click="backToTop"
+          size="small"
+          :class="{btn_show: !isRuntimeConcatLogsFlag}"
+          icon="el-icon-arrow-up"
+        ></el-button>
         <el-input
           class="search_input"
           placeholder="Search logs..."
@@ -121,6 +128,12 @@
       stopObserveSessionLogs() {
         this.$socket.emit('SOCKET_F_STOP_LISTEN_SESSION', {sessionId: this.currentSessionId});
       },
+      backToTop(){
+        this.logsArray = [];
+        this.frameStartIndex = 0;
+        this.logsArray = this.getSessionLogsByFrameIndexes(0, DISPLAYED_LOGS_LIMIT);
+        this.scrollableInner.scrollTop = 0;
+      },
       reinitLogsReceiving() {
         this.logsArray = [];
         this.frameStartIndex = 0;
@@ -217,6 +230,7 @@
       getLogsByFilter() {
         this.logsArray = [];
         this.frameStartIndex = 0;
+        this.instantSearchModel = '';
         this.logsArray = this.getSessionLogsByFrameIndexes(0, DISPLAYED_LOGS_LIMIT);
       },
       getAllSessionLogs(logsReceived) {
@@ -276,6 +290,26 @@
       width: calc(100% - 40px);
       max-width: 1260px;
       margin: 0 20px;
+    }
+    .back_to_top {
+      z-index: -1;
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      transition: all .3s;
+      border-radius: 5px;
+      background: white;
+      opacity: 0;
+      -webkit-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.3);
+      -moz-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.3);
+      box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.3);
+    }
+    .btn_show {
+      z-index: 1;
+      opacity: .8;
+      &:hover {
+        opacity: 1;
+      }
     }
   }
 
