@@ -1,54 +1,73 @@
-import {httpWrapper} from "../../http/http-wrapper";
 import {
   ADD_SESSION,
   ERROR_GET_SESSION,
-  SET_SESSION_LOGS,
   ADD_NEW_LOG_TO_SESSION,
-  SET_ACTIVE_SESSION, SET_BUFFER_LOGS, ADD_PARTIAL_LOG_PL, BACKWARD_ADD_PARTIAL_LOG_PL
+  SET_ACTIVE_SESSION,
+  RECORD_SESSION_LOGS_MUTATION,
+  CLEAR_SESSION_LOGS,
+  CLEAR_ACTIVE_SESSIONS,
+  ADD_NEW_ACTIVE_SESSION,
+  UPDATE_SESSION_DATA,
+  SET_LOGS_FILTERS,
+  SET_FILTERED_LOGS,
+  RESET_FILTERED_LOGS,
+  GET_LOGS_BY_TEXT_SEARCH,
+  SET_SEARCH_FILTER_STATE,
+  SET_SEARCH_STRING
 } from "../mutations/mutation-types";
-
-import {LOGS_STEP_COUNT} from "../../shared/logs-count-util/logs-count-util";
 
 const actions = {
   getActiveSessionsAction({commit}, sessions) {
     commit(ERROR_GET_SESSION, false);
     commit(ADD_SESSION, sessions);
   },
+  addNewActiveSession({commit}, sessionObj) {
+    commit(ADD_NEW_ACTIVE_SESSION, sessionObj);
+  },
+  setLogsFilters({commit}, payload) {
+    commit(SET_LOGS_FILTERS, payload);
+
+    if(payload.length > 0) {
+      commit(SET_FILTERED_LOGS);
+    } else {
+      commit(RESET_FILTERED_LOGS)
+    }
+  },
+  setFilteredLogsAction({commit}) {
+    commit(SET_FILTERED_LOGS);
+  },
+  resetFilteredLogsAction({commit}) {
+    commit(RESET_FILTERED_LOGS)
+  },
+  getLogsBySearchAction({commit}, payload) {
+    commit(SET_SEARCH_FILTER_STATE, payload.isSearchActive);
+    if(payload.searchString) {
+      commit(GET_LOGS_BY_TEXT_SEARCH, payload.searchString);
+    }
+    if(!payload.isSearchActive) {
+      commit(SET_FILTERED_LOGS);
+    }
+    commit(SET_SEARCH_STRING, payload.searchString);
+  },
+  updateSessionData({commit}, sessionObj) {
+    commit(UPDATE_SESSION_DATA, sessionObj);
+  },
   setActiveSessionId({commit}, payload) {
     commit(SET_ACTIVE_SESSION, payload);
   },
-  /**
-   * TODO
-   * properly handle fwd/bkw loading logs from buffer 2 render on the page
-   * @param context - vuex context object
-   * @param payload - {logsStep: Number}
-   */
-  getLazyLogsFromBuffer(context, payload) {
-    let startIndex = payload.logsStep * LOGS_STEP_COUNT;
-    let finalIndex = startIndex + LOGS_STEP_COUNT;
-    let partialLogs = this.state.bufferedLogs.slice(startIndex, finalIndex);
-    console.warn(payload.logsStep, 'LOG STEP FWD');
-    context.commit(ADD_PARTIAL_LOG_PL, partialLogs);
-
-    let sessionLogsLength = this.state.sessionLogs.length;
-
-    if (sessionLogsLength > LOGS_STEP_COUNT * 2) {
-      console.warn('Here is the CUT expected');
-      let slisedSessionLogs = this.state.sessionLogs.slice(LOGS_STEP_COUNT, sessionLogsLength);
-      context.commit(SET_SESSION_LOGS, slisedSessionLogs);
-    }
+  clearSessionLogs({commit}) {
+    commit(CLEAR_SESSION_LOGS);
   },
-  getBackwardLogsFromBuffer(context, payload) {
-    let startIndex = payload.logsStep * LOGS_STEP_COUNT;
-    let finalIndex = startIndex + LOGS_STEP_COUNT;
-    let partialLogs = this.state.bufferedLogs.slice(startIndex, finalIndex);
-    context.commit(BACKWARD_ADD_PARTIAL_LOG_PL, partialLogs);
-    console.warn(payload.logsStep, 'LOG STEP BACKW');
+  clearActiveSessions({commit}) {
+    commit(CLEAR_ACTIVE_SESSIONS);
   },
   setNewLogAction({commit}, payload) {
     if (this.state.activeSessionId === payload.logData.session_related) {
       commit(ADD_NEW_LOG_TO_SESSION, payload);
     }
+  },
+  recordSessionLogsAction({commit}, payload) {
+    commit(RECORD_SESSION_LOGS_MUTATION, payload);
   }
 };
 

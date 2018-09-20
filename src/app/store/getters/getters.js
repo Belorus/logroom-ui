@@ -11,14 +11,25 @@ const getters = {
   getSessionLogs: state => {
     return state.sessionLogs;
   },
-  getBufferedLogsLength: state => {
-    return state.bufferedLogs.length;
-  },
-  getSessionDetailsGetter: state => {
-    return state.sessions.find(session => session.id === state.activeSessionId);
+  getSessionLogsByFrameIndexes: state => (startIndex, endIndex) => {
+    let logsToReturn;
+
+    if(state.logsDisplayFilters.length > 0 || state.isSearchFilterActive) {
+      logsToReturn = state.filteredLogs.slice(startIndex, endIndex);
+    } else {
+      logsToReturn = state.sessionLogs.slice(startIndex, endIndex);
+    }
+
+    return logsToReturn;
   },
   getSessionDetailsByIdGetter: state => sessionId => {
     return state.sessions.find(session => session.id === sessionId);
+  },
+  getLogsFilterGetter: state => {
+    return state.logsDisplayFilters;
+  },
+  getLastFilteredLogInStore: state => {
+    return state.filteredLogs.length > 0 ? state.filteredLogs[state.filteredLogs.length - 1] : false;
   }
 };
 

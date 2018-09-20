@@ -1,16 +1,20 @@
 import axios from "axios/index";
 
-const BASE_URL = 'http://10.61.20.89:8080/push_log';
-
 const BASE_JSDB_URL = "http://localhost:3000/";
+/**
+ * TODO change dasic url later
+ * @type {string}
+ */
+const EXPRESS_SERVER_URL = "http://10.61.20.41:4000/";
 const DIVIDER = "/";
-const SESSIONS = "sessions";
+const ACTIVE_SESSIONS = "activeSessions";
 const LOGS = "logs";
+const SESSION_LOGS_FILE_LINK = "sessionLogsFileLink";
 
 class HttpWrapperClass {
-  getAllSessions(callback, errHandler) {
+  getActiveSessions(callback, errHandler) {
     axios
-      .get(BASE_JSDB_URL + SESSIONS)
+      .get(EXPRESS_SERVER_URL + ACTIVE_SESSIONS)
       .then(res => {
         callback(res.data);
       })
@@ -19,17 +23,49 @@ class HttpWrapperClass {
       })
   }
 
-  getAllActiveSessions(callback) {
-    let activeSessionsParam = {
-      archived: 0
-    };
+  getPackOfOldLogs(logsData, callback) {
     axios
-      .get(BASE_JSDB_URL + SESSIONS, {params: activeSessionsParam})
+      .get(EXPRESS_SERVER_URL + 'sessionLogs', {
+        params: logsData
+      })
       .then(res => {
-        callback(res.data);
+        callback(res.data)
       })
       .catch(err => {
-        console.warn('Error: ', err);
+        console.log(err);
+      })
+  }
+
+  getLogsFile(sessionId) {
+    let sessionData = {
+      sessionId: sessionId
+    };
+
+    axios
+      .get(EXPRESS_SERVER_URL + SESSION_LOGS_FILE_LINK, {
+        params: sessionData
+      })
+      .then((response) => {
+        this.getLogFileByLink(response.data, sessionId);
+      })
+      .catch(err => {
+        console.log('Could not get logs file link from server: ', err);
+      });
+  }
+
+  getLogFileByLink(logFileLink, sessionId) {
+    axios
+      .get(logFileLink, {
+        responseType: 'Blob'
+      })
+      .then(res => {
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `log-file-${sessionId}.txt`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       })
   }
 
@@ -39,7 +75,7 @@ class HttpWrapperClass {
       session_related: 1
     };
     axios
-      .post(BASE_JSDB_URL + LOGS, logData)
+      .post(EXPRESS_SERVER_URL + LOGS, logData)
       .then(res => {
         callback(res.data);
       })

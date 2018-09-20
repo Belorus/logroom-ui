@@ -6,9 +6,12 @@ const storage = {
   state: {
     sessions: [],
     isSessionsGetErrorOccured: false,
+    isSearchFilterActive: false,
+    searchString: null,
     sessionLogs: [],
-    bufferedLogs: [],
-    activeSessionId: null
+    filteredLogs: [],
+    activeSessionId: null,
+    logsDisplayFilters: []
   },
   mutations: mutations,
   getters: getters,

@@ -1,40 +1,111 @@
 import {
   ADD_SESSION,
   ERROR_GET_SESSION,
-  SET_SESSION_LOGS,
-  SET_BUFFER_LOGS,
   SET_ACTIVE_SESSION,
   ADD_NEW_LOG_TO_SESSION,
-  ADD_PARTIAL_LOG_PL, BACKWARD_ADD_PARTIAL_LOG_PL
+  RECORD_SESSION_LOGS_MUTATION,
+  CLEAR_SESSION_LOGS,
+  CLEAR_ACTIVE_SESSIONS,
+  ADD_NEW_ACTIVE_SESSION,
+  UPDATE_SESSION_DATA,
+  SET_LOGS_FILTERS,
+  SET_FILTERED_LOGS,
+  RESET_FILTERED_LOGS,
+  GET_LOGS_BY_TEXT_SEARCH,
+  SET_SEARCH_FILTER_STATE,
+  SET_SEARCH_STRING
 } from "./mutation-types";
 
 const mutations = {
   [ADD_SESSION](state, payload) {
-    payload.map(session => state.sessions.push(session))
+    payload.map(session => state.sessions.push(session));
+  },
+  [ADD_NEW_ACTIVE_SESSION](state, payload) {
+    state.sessions.push(payload);
+  },
+  [UPDATE_SESSION_DATA](state, payload){
+    state.sessions = state.sessions
+      .filter(session => session.id !== payload.id);
+    state.sessions.push(payload);
   },
   [ERROR_GET_SESSION](state, payload) {
     state.isSessionsGetErrorOccured = payload;
   },
-  [SET_SESSION_LOGS](state, payload) {
-    state.sessionLogs = payload;
-  },
-  [SET_BUFFER_LOGS](state, payload) {
-    state.bufferedLogs = payload;
-  },
   [ADD_NEW_LOG_TO_SESSION](state, payload) {
     state.sessionLogs.push(payload.logData);
   },
-  [ADD_PARTIAL_LOG_PL](state, payload) {
-    payload.map(log => state.sessionLogs.push(log));
-  },
-  [BACKWARD_ADD_PARTIAL_LOG_PL](state, payload) {
-    console.log('BACKWARD_ADD_PARTIAL_LOG_PL: ', payload);
-    let resLogs = [];
-    payload.map(log => resLogs.push(log));
-    state.sessionLogs = resLogs.concat(state.sessionLogs);
-  },
   [SET_ACTIVE_SESSION](state, payload) {
-    state.activeSessionId = payload.sessionId;
+    state.activeSessionId = payload ? payload.sessionId : null;
+  },
+  [CLEAR_SESSION_LOGS](state) {
+    state.sessionLogs = [];
+  },
+  [CLEAR_ACTIVE_SESSIONS](state) {
+    console.log('SESSSIONS CLEARED!!!');
+    state.sessions = [];
+  },
+  [RECORD_SESSION_LOGS_MUTATION](state, payload) {
+    function concatOldLogs() {
+      return state.sessionLogs.concat(payload.logs);
+    }
+    function concatNewLogs() {
+      return payload.logs.concat(state.sessionLogs);
+    }
+
+    state.sessionLogs = payload.isOld ? concatOldLogs() : concatNewLogs();
+  },
+  [SET_LOGS_FILTERS](state, payload) {
+    if(Array.isArray(payload)) {
+      state.logsDisplayFilters = payload;
+    }
+  },
+  [SET_FILTERED_LOGS](state) {
+    if(state.logsDisplayFilters.length > 0) {
+      state.filteredLogs = state.sessionLogs.filter(log => state.logsDisplayFilters.includes(log.level));
+    } else {
+      state.filteredLogs = [];
+    }
+  },
+  [RESET_FILTERED_LOGS](state) {
+    state.filteredLogs = [];
+  },
+  [GET_LOGS_BY_TEXT_SEARCH](state, payload) {
+    let isFilteredLogsPresent = state.filteredLogs.length === 0;
+
+    let isTypingBackWithFiltersOff = state.searchString
+      && payload.length < state.searchString.length
+      && state.logsDisplayFilters.length === 0;
+
+    let isTypingBackWithFiltersOn = state.searchString
+      && payload.length < state.searchString.length
+      && state.logsDisplayFilters.length > 0;
+
+    if(isFilteredLogsPresent || isTypingBackWithFiltersOff) {
+      state.filteredLogs = filterQueryFromAllLogs(payload);
+    } else if(isTypingBackWithFiltersOn) {
+      state.filteredLogs = filterQueryFromFilteredLogsTypingBackward(payload);
+    } else {
+      state.filteredLogs = filterQueryFromFilteredLogs(payload);
+    }
+
+    function filterQueryFromAllLogs(queryString) {
+      return state.sessionLogs.filter(log => log.message.toLowerCase().includes(queryString.toLowerCase()));
+    }
+    function filterQueryFromFilteredLogs(queryString) {
+      return state.filteredLogs.filter(log => log.message.toLowerCase().includes(queryString.toLowerCase()));
+    }
+    function filterQueryFromFilteredLogsTypingBackward(queryString) {
+      return state.sessionLogs.filter(log =>
+          state.logsDisplayFilters.includes(log.level)
+          && log.message.toLowerCase().includes(payload.toLowerCase())
+      );
+    }
+  },
+  [SET_SEARCH_FILTER_STATE](state, payload) {
+    state.isSearchFilterActive = payload;
+  },
+  [SET_SEARCH_STRING](state, payload) {
+    state.searchString = payload;
   }
 };
 

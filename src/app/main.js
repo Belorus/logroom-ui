@@ -3,6 +3,8 @@ import '../assets/styles/main.scss';
 import Vue from 'vue';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
+import lang from 'element-ui/lib/locale/lang/en';
+import locale from 'element-ui/lib/locale';
 
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
@@ -15,11 +17,13 @@ import {storage} from './store/index'
 
 import App from './App';
 
+locale.use(lang);
+
 Vue.use(ElementUI);
 Vue.use(VueRouter);
 Vue.use(Vuex);
 
-export const SocketInstance = socketio( `ws://${window.location.hostname}:9861`, { transports: ['websocket']});
+export const SocketInstance = socketio.connect('http://10.61.20.41:4000', { transports: ['websocket']});
 Vue.use(VueSocketio, SocketInstance);
 
 const router = new VueRouter({
