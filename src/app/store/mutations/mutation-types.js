@@ -15,6 +15,7 @@ const SET_SEARCH_STRING = 'setSearchString';
 const SET_MARKER_START = 'setMarkerStartPosition';
 const SET_MARKER_END = 'setMarkerEndPosition';
 const SET_MARKING_PROGRESS = 'setMarkingProgress';
+const ADD_NEW_MARKER = 'addNewMarker';
 
 const RECORD_SESSION_LOGS_MUTATION = 'recordSessionLogsMutation';
 
@@ -36,5 +37,6 @@ export {
   SET_SEARCH_STRING,
   SET_MARKER_END,
   SET_MARKER_START,
-  SET_MARKING_PROGRESS
+  SET_MARKING_PROGRESS,
+  ADD_NEW_MARKER
 };

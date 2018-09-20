@@ -16,7 +16,8 @@ import {
   SET_SEARCH_STRING,
   SET_MARKING_PROGRESS,
   SET_MARKER_START,
-  SET_MARKER_END
+  SET_MARKER_END,
+  ADD_NEW_MARKER
 } from "./mutation-types";
 
 const mutations = {
@@ -118,6 +119,13 @@ const mutations = {
   },
   [SET_MARKER_END](state, payload) {
     state.markerEndPosition = payload ? payload : null;
+  },
+  [ADD_NEW_MARKER](state, payload) {
+    state.sessions.find(session => {
+      if(session.id === payload.sessionId) {
+        session.markers.push(payload.markerData);
+      }
+    });
   }
 };
 

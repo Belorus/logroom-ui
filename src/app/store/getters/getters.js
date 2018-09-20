@@ -28,6 +28,9 @@ const getters = {
   getLogsFilterGetter: state => {
     return state.logsDisplayFilters;
   },
+  getSearchQueryString: state => {
+    return state.searchString;
+  },
   getLastFilteredLogInStore: state => {
     return state.filteredLogs.length > 0 ? state.filteredLogs[state.filteredLogs.length - 1] : false;
   },

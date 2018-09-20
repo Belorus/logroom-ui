@@ -31,6 +31,7 @@
 <script>
   import {mapGetters, mapActions} from "vuex";
   import {formattedTimestampUtil} from "Utils/utils";
+  import {httpWrapper} from "Http/http-wrapper";
   import {
     TRACE_LOG_TYPE,
     DEBUG_LOG_TYPE,
@@ -44,29 +45,34 @@
     data() {
       return {
         currentLog: null,
-        highlightLogFlag: false
+        highlightLogFlag: false,
+        currentSessionId: null
       }
     },
     props: {
       log: Object
     },
+    created() {
+      this.currentSessionId = this.$route.params.id;
+    },
     computed: {
       ...mapGetters({
         getMarkerProgressFlagGetter: 'getMarkerProgressFlagGetter',
         getStartMarkingPosition: 'getStartMarkingPosition',
-        getEndMarkingPosition: 'getEndMarkingPosition'
+        getEndMarkingPosition: 'getEndMarkingPosition',
+        getLogsFilterGetter: 'getLogsFilterGetter',
+        getSearchQueryString: 'getSearchQueryString'
       }),
       isHighlighted() {
-        if(this.getEndMarkingPosition <= this.getStartMarkingPosition
+        const markerDraggedDown = this.getEndMarkingPosition <= this.getStartMarkingPosition
           && this.log.seqNumber >= this.getEndMarkingPosition
-          && this.log.seqNumber <= this.getStartMarkingPosition) {
-          return true;
-        } else if(this.getStartMarkingPosition <= this.getEndMarkingPosition
+          && this.log.seqNumber <= this.getStartMarkingPosition;
+
+        const markerDraggedUp = this.getStartMarkingPosition <= this.getEndMarkingPosition
           && this.log.seqNumber >= this.getStartMarkingPosition
-          && this.log.seqNumber <= this.getEndMarkingPosition) {
-          return true;
-        }
-        return false;
+          && this.log.seqNumber <= this.getEndMarkingPosition;
+
+        return (markerDraggedDown || markerDraggedUp);
       },
       isOdd() {
         return this.log.seqNumber % 2 === 0;
@@ -91,7 +97,8 @@
       ...mapActions({
         changeMarkerProgressState: 'changeMarkerProgressState',
         setMarkerStartPosition: 'setMarkerStartPosition',
-        setMarkerEndPosition: 'setMarkerEndPosition'
+        setMarkerEndPosition: 'setMarkerEndPosition',
+        addNewMarkerAction: 'addNewMarkerAction'
       }),
       formattedTimestamp(timestampData) {
         return formattedTimestampUtil(timestampData);
@@ -109,35 +116,70 @@
         } else {
           this.openConfirm();
         }
-
-        console.log('MARKER HANDLER INITIATED');
       },
       resetMarking() {
         this.setMarkerStartPosition();
         this.setMarkerEndPosition();
       },
       openConfirm() {
-        this.$confirm(`This will save logs marker. Marker ${this.getStartMarkingPosition} - ${this.getEndMarkingPosition}`, 'Save Logs Marker', {
+        const confirmMessage = `This will save logs marker. Marker ${this.getStartMarkingPosition} - ${this.getEndMarkingPosition}`;
+        const confirmTitle = 'Save Logs Marker';
+        const confirmMessageConfig = {
           confirmButtonText: 'OK',
           cancelButtonText: 'Cancel',
           type: 'success'
-        }).then(() => {
-          console.log('SAVED');
-          this.$message({
-            type: 'success',
-            showClose: true,
-            message: `Marker ${this.getStartMarkingPosition} - ${this.getEndMarkingPosition} saved`
-          });
-          this.resetMarking();
+        };
+
+        this.$confirm(confirmMessage, confirmTitle, confirmMessageConfig).then(() => {
+          this.saveNewMarker();
         }).catch(() => {
-          console.log('REMOVED');
-          this.$message({
-            type: 'info',
-            showClose: true,
-            message: `Saving marker ${this.getStartMarkingPosition} - ${this.getEndMarkingPosition} canceled`
-          });
+          this.fireDeclineMessage();
+        });
+      },
+      saveNewMarker() {
+        let markerData = this.buildMarkerData();
+
+        httpWrapper.postNewSessionMarker(markerData, this.currentSessionId, (savedMarkerData) => {
+          let saveMarkerActionData = {
+            sessionId: this.currentSessionId,
+            markerData: savedMarkerData
+          };
+          this.addNewMarkerAction(saveMarkerActionData);
+
+          this.fireSuccessMessage();
           this.resetMarking();
         });
+      },
+      buildMarkerData() {
+        let filtersData = [];
+
+        if(this.getLogsFilterGetter.length > 0) {
+          this.getLogsFilterGetter.map(filter => filtersData.push(filter));
+        }
+
+        return {
+          startPosition: this.getStartMarkingPosition,
+          endPosition: this.getEndMarkingPosition,
+          clientFilters: {
+            levels: filtersData,
+            searchQuery:this.getSearchQueryString
+          }
+        };
+      },
+      fireSuccessMessage() {
+        this.$message({
+          type: 'success',
+          showClose: true,
+          message: `Marker ${this.getStartMarkingPosition} - ${this.getEndMarkingPosition} saved`
+        });
+      },
+      fireDeclineMessage() {
+        this.$message({
+          type: 'info',
+          showClose: true,
+          message: `Saving marker ${this.getStartMarkingPosition} - ${this.getEndMarkingPosition} canceled`
+        });
+        this.resetMarking();
       }
     }
   }

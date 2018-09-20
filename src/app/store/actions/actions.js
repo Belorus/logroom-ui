@@ -16,7 +16,8 @@ import {
   SET_SEARCH_STRING,
   SET_MARKER_END,
   SET_MARKER_START,
-  SET_MARKING_PROGRESS
+  SET_MARKING_PROGRESS,
+  ADD_NEW_MARKER
 } from "../mutations/mutation-types";
 
 const actions = {
@@ -76,12 +77,13 @@ const actions = {
     commit(SET_MARKING_PROGRESS);
   },
   setMarkerStartPosition({commit}, payload) {
-    console.log('setMarkerStartPosition: ', payload);
     commit(SET_MARKER_START, payload);
   },
   setMarkerEndPosition({commit}, payload) {
-    console.log('setMarkerEndPosition: ', payload);
     commit(SET_MARKER_END, payload);
+  },
+  addNewMarkerAction({commit}, payload) {
+    commit(ADD_NEW_MARKER, payload);
   }
 };
 
