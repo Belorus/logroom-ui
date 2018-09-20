@@ -1,6 +1,14 @@
 <template>
-  <div :class="{is_odd: isOdd}"
-       class="list_item">
+  <div :class="{is_odd: isOdd, highlighted_log: isHighlighted}"
+       class="list_item" v-on:mouseover="onMouseoverHandler">
+    <el-button
+      @click="markerHandler"
+      type="primary"
+      plain
+      size="mini"
+      :icon="getMarkerProgressFlagGetter ? 'el-icon-minus': 'el-icon-plus'"
+    ></el-button>
+    <b>{{log.seqNumber}} - {{getMarkerProgressFlagGetter}}</b>
     <span class="timestamp">
       {{formattedTimestamp(log.timestamp)}}
     </span>
@@ -21,6 +29,7 @@
 </template>
 
 <script>
+  import {mapGetters, mapActions} from "vuex";
   import {formattedTimestampUtil} from "Utils/utils";
   import {
     TRACE_LOG_TYPE,
@@ -34,13 +43,31 @@
     name: 'single-log',
     data() {
       return {
-        currentLog: null
+        currentLog: null,
+        highlightLogFlag: false
       }
     },
     props: {
       log: Object
     },
     computed: {
+      ...mapGetters({
+        getMarkerProgressFlagGetter: 'getMarkerProgressFlagGetter',
+        getStartMarkingPosition: 'getStartMarkingPosition',
+        getEndMarkingPosition: 'getEndMarkingPosition'
+      }),
+      isHighlighted() {
+        if(this.getEndMarkingPosition <= this.getStartMarkingPosition
+          && this.log.seqNumber >= this.getEndMarkingPosition
+          && this.log.seqNumber <= this.getStartMarkingPosition) {
+          return true;
+        } else if(this.getStartMarkingPosition <= this.getEndMarkingPosition
+          && this.log.seqNumber >= this.getStartMarkingPosition
+          && this.log.seqNumber <= this.getEndMarkingPosition) {
+          return true;
+        }
+        return false;
+      },
       isOdd() {
         return this.log.seqNumber % 2 === 0;
       },
@@ -61,8 +88,56 @@
       }
     },
     methods: {
+      ...mapActions({
+        changeMarkerProgressState: 'changeMarkerProgressState',
+        setMarkerStartPosition: 'setMarkerStartPosition',
+        setMarkerEndPosition: 'setMarkerEndPosition'
+      }),
       formattedTimestamp(timestampData) {
         return formattedTimestampUtil(timestampData);
+      },
+      onMouseoverHandler() {
+        if(!this.getMarkerProgressFlagGetter) return;
+        this.setMarkerEndPosition(this.log.seqNumber);
+      },
+      markerHandler() {
+        this.changeMarkerProgressState();
+
+        if(this.getMarkerProgressFlagGetter) {
+          this.setMarkerStartPosition(this.log.seqNumber);
+          this.setMarkerEndPosition(this.log.seqNumber);
+        } else {
+          this.openConfirm();
+        }
+
+        console.log('MARKER HANDLER INITIATED');
+      },
+      resetMarking() {
+        this.setMarkerStartPosition();
+        this.setMarkerEndPosition();
+      },
+      openConfirm() {
+        this.$confirm(`This will save logs marker. Marker ${this.getStartMarkingPosition} - ${this.getEndMarkingPosition}`, 'Save Logs Marker', {
+          confirmButtonText: 'OK',
+          cancelButtonText: 'Cancel',
+          type: 'success'
+        }).then(() => {
+          console.log('SAVED');
+          this.$message({
+            type: 'success',
+            showClose: true,
+            message: `Marker ${this.getStartMarkingPosition} - ${this.getEndMarkingPosition} saved`
+          });
+          this.resetMarking();
+        }).catch(() => {
+          console.log('REMOVED');
+          this.$message({
+            type: 'info',
+            showClose: true,
+            message: `Saving marker ${this.getStartMarkingPosition} - ${this.getEndMarkingPosition} canceled`
+          });
+          this.resetMarking();
+        });
       }
     }
   }
@@ -73,6 +148,7 @@
 
   .list_item {
     display: inline-block;
+    position: relative;
     width: 100%;
     max-width: 1260px;
     word-break: break-all;
@@ -84,10 +160,22 @@
     font-size: 14px;
     line-height: 22px;
     border-radius: 3px;
+    &:hover .el-button {
+      opacity: 1;
+    }
+    .el-button {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+    }
   }
 
   .is_odd {
     background: #f9f9f9;
+  }
+  .highlighted_log {
+    background: lightblue;
   }
 
   .timestamp {

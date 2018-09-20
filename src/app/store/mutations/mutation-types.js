@@ -12,6 +12,9 @@ const RESET_FILTERED_LOGS = 'resetFilteredLogs';
 const GET_LOGS_BY_TEXT_SEARCH = 'getLogsByTextSearch';
 const SET_SEARCH_FILTER_STATE = 'setSearchFilterState';
 const SET_SEARCH_STRING = 'setSearchString';
+const SET_MARKER_START = 'setMarkerStartPosition';
+const SET_MARKER_END = 'setMarkerEndPosition';
+const SET_MARKING_PROGRESS = 'setMarkingProgress';
 
 const RECORD_SESSION_LOGS_MUTATION = 'recordSessionLogsMutation';
 
@@ -30,5 +33,8 @@ export {
   RESET_FILTERED_LOGS,
   GET_LOGS_BY_TEXT_SEARCH,
   SET_SEARCH_FILTER_STATE,
-  SET_SEARCH_STRING
+  SET_SEARCH_STRING,
+  SET_MARKER_END,
+  SET_MARKER_START,
+  SET_MARKING_PROGRESS
 };

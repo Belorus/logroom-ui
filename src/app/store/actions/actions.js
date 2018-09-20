@@ -13,7 +13,10 @@ import {
   RESET_FILTERED_LOGS,
   GET_LOGS_BY_TEXT_SEARCH,
   SET_SEARCH_FILTER_STATE,
-  SET_SEARCH_STRING
+  SET_SEARCH_STRING,
+  SET_MARKER_END,
+  SET_MARKER_START,
+  SET_MARKING_PROGRESS
 } from "../mutations/mutation-types";
 
 const actions = {
@@ -68,6 +71,17 @@ const actions = {
   },
   recordSessionLogsAction({commit}, payload) {
     commit(RECORD_SESSION_LOGS_MUTATION, payload);
+  },
+  changeMarkerProgressState({commit}) {
+    commit(SET_MARKING_PROGRESS);
+  },
+  setMarkerStartPosition({commit}, payload) {
+    console.log('setMarkerStartPosition: ', payload);
+    commit(SET_MARKER_START, payload);
+  },
+  setMarkerEndPosition({commit}, payload) {
+    console.log('setMarkerEndPosition: ', payload);
+    commit(SET_MARKER_END, payload);
   }
 };
 

@@ -11,7 +11,10 @@ const storage = {
     sessionLogs: [],
     filteredLogs: [],
     activeSessionId: null,
-    logsDisplayFilters: []
+    logsDisplayFilters: [],
+    isMarkingInProgress: false,
+    markerStartPosition: null,
+    markerEndPosition: null
   },
   mutations: mutations,
   getters: getters,

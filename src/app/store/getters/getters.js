@@ -30,6 +30,15 @@ const getters = {
   },
   getLastFilteredLogInStore: state => {
     return state.filteredLogs.length > 0 ? state.filteredLogs[state.filteredLogs.length - 1] : false;
+  },
+  getMarkerProgressFlagGetter: state => {
+    return state.isMarkingInProgress;
+  },
+  getStartMarkingPosition: state => {
+    return state.markerStartPosition;
+  },
+  getEndMarkingPosition: state => {
+    return state.markerEndPosition;
   }
 };
 
