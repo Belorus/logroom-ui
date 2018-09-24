@@ -25,6 +25,10 @@
           </el-button>
         </div>
       </el-row>
+      <el-row class="sidebar_section">
+        <h4>Saved Markers</h4>
+        <marker-list></marker-list>
+      </el-row>
     </div>
   </div>
 </template>
@@ -33,6 +37,7 @@
   import {mapActions} from "vuex"
   import {Message} from "element-ui";
   import SessionDetailsComponent from "Components/session-details/SessionDetailsComponent";
+  import MarkerListComponent from "Components/marker-list-component/MarkerListComponent";
   import {httpWrapper} from "Http/http-wrapper";
   import {
     TRACE_LOG_TYPE,
@@ -54,7 +59,8 @@
       }
     },
     components: {
-      'session-details': SessionDetailsComponent
+      'session-details': SessionDetailsComponent,
+      'marker-list': MarkerListComponent
     },
     created() {
       this.currentSessionId = this.$route.params.id;
