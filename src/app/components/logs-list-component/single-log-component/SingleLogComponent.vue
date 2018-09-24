@@ -75,8 +75,8 @@
     display: inline-block;
     width: 100%;
     word-break: break-all;
-    -webkit-margin-before: 0.4em;
-    -webkit-margin-after: 0.4em;
+    -webkit-margin-before: 0.2em;
+    -webkit-margin-after: 0.2em;
     -webkit-margin-start: 0;
     -webkit-margin-end: 0;
     font-family: monospace;
@@ -99,7 +99,7 @@
 
   .log_thread {
     display: inline-block;
-    width: 60px;
+    width: 45px;
   }
 
   .log_message {
