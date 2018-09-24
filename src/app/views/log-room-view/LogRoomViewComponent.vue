@@ -44,7 +44,9 @@
   export default {
     sockets: {
       SOCKET_B_PUSH_LOGS: function (data) {
-        this.getAllSessionLogs(data);
+        if(data.logs.length >= OLD_LOGS_LIMIT) {
+          this.getAllSessionLogs(data);
+        }
         this.receiveLogsHandler(data);
         this.isLogsFound = true;
       }
@@ -262,7 +264,7 @@
     @include display-flex;
     top: $header-height;
     right: 0;
-    bottom: 0;
+    bottom: $footer-height;
     left: 0;
   }
 
@@ -288,7 +290,6 @@
       position: absolute;
       bottom: -60px;
       width: calc(100% - 40px);
-      max-width: 1260px;
       margin: 0 20px;
     }
     .back_to_top {

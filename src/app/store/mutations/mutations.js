@@ -89,15 +89,18 @@ const mutations = {
     }
 
     function filterQueryFromAllLogs(queryString) {
-      return state.sessionLogs.filter(log => log.message.toLowerCase().includes(queryString.toLowerCase()));
+      return state.sessionLogs.filter(log => log.message.toLowerCase().includes(queryString.toLowerCase())
+        || log.tag.toLowerCase().includes(queryString.toLowerCase()));
     }
     function filterQueryFromFilteredLogs(queryString) {
-      return state.filteredLogs.filter(log => log.message.toLowerCase().includes(queryString.toLowerCase()));
+      return state.filteredLogs.filter(log => log.message.toLowerCase().includes(queryString.toLowerCase())
+        || log.tag.toLowerCase().includes(queryString.toLowerCase()));
     }
     function filterQueryFromFilteredLogsTypingBackward(queryString) {
       return state.sessionLogs.filter(log =>
           state.logsDisplayFilters.includes(log.level)
-          && log.message.toLowerCase().includes(payload.toLowerCase())
+          && (log.message.toLowerCase().includes(payload.toLowerCase()
+          || log.tag.toLowerCase().includes(queryString.toLowerCase())))
       );
     }
   },

@@ -1,16 +1,21 @@
 <template>
   <div class="main_container">
     <router-view></router-view>
+    <footer-component></footer-component>
   </div>
 </template>
 
 <script>
   import {mapActions} from "vuex";
   import {httpWrapper} from "./http/http-wrapper";
+  import FooterComponent from "Components/footer-component/FooterComponent"
 
   export default {
-    sockets:{
-      connect: function(){
+    components: {
+      'footer-component': FooterComponent
+    },
+    sockets: {
+      connect: function () {
         console.log('socket connected');
         this.getAllActiveSessionsByHttp();
       },

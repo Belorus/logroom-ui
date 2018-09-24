@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="sessions_container">
     <h2 v-if="isGetSessionsError">ERROR 2 GET SESSIONS</h2>
 
     <el-row :gutter="20" v-else style="margin: 0 20px;">
@@ -146,6 +146,11 @@
 </script>
 
 <style lang="scss" scoped>
+  @import "../../../assets/styles/variables";
+
+  .sessions_container {
+    padding-bottom: $footer-height;
+  }
   .filters_block {
     margin-bottom: 20px;
     .el-select {

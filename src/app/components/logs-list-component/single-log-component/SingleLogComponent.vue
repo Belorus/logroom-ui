@@ -74,7 +74,6 @@
   .list_item {
     display: inline-block;
     width: 100%;
-    max-width: 1260px;
     word-break: break-all;
     -webkit-margin-before: 0.4em;
     -webkit-margin-after: 0.4em;
