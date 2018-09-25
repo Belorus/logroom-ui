@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="details_wrapper" v-if="sessionDetailsData">
-      <h3>{{sessionDetailsData.additional.app_name}} - {{sessionDetailsData.additional.app_version}}</h3>
+      <h3>{{sessionDetailsData.additional.app_name}} - {{sessionDetailsData.additional.app_version}} - {{sessionDetailsData.logsCount}}</h3>
       <p class="session_id_title">
         <span>#ID</span>: {{sessionDetailsData.id}}
       </p>

@@ -158,6 +158,8 @@
         }
 
         this.startIndexShiftsOnReceivingLogs(newLogsCount);
+        console.warn(`Start index SHIFT: ${this.frameStartIndex}.
+        `);
         this.logsArray = this.getSessionLogsByFrameIndexes(this.frameStartIndex, this.frameStartIndex + DISPLAYED_LOGS_LIMIT);
       },
       startIndexShiftsOnReceivingLogs(shiftStep) {
@@ -179,6 +181,10 @@
         }
 
         if (isContainerTopReached) {
+          console.warn(`Start index: ${this.frameStartIndex}.
+          Runtime load logs flag: ${this.isRuntimeConcatLogsFlag}
+          Offset Top: ${offsetHeight}
+          `);
           this.topCalculateDisplayedLogs(scrollHeight);
         }
 
