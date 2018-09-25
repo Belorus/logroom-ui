@@ -158,8 +158,6 @@
         }
 
         this.startIndexShiftsOnReceivingLogs(newLogsCount);
-        console.warn(`Start index SHIFT: ${this.frameStartIndex}.
-        `);
         this.logsArray = this.getSessionLogsByFrameIndexes(this.frameStartIndex, this.frameStartIndex + DISPLAYED_LOGS_LIMIT);
       },
       startIndexShiftsOnReceivingLogs(shiftStep) {
@@ -181,26 +179,23 @@
         }
 
         if (isContainerTopReached) {
-          console.warn(`Start index: ${this.frameStartIndex}.
-          Runtime load logs flag: ${this.isRuntimeConcatLogsFlag}
-          Offset Top: ${offsetHeight}
-          `);
-          this.topCalculateDisplayedLogs(scrollHeight);
+          this.topCalculateDisplayedLogs();
         }
 
         if (isContainerBottomReached && this.logsArray.length >= DISPLAYED_LOGS_LIMIT) {
           this.bottomCalculateDisplayedLogs();
         }
       },
-      topCalculateDisplayedLogs(scrollHeight) {
+      topCalculateDisplayedLogs() {
         if (this.frameStartIndex > 0) {
           let startIndex = this.topCalculateStartIndex();
           let endIndex = this.topCalculateEndIndex();
 
-          this.scrollableInner.scrollTop = scrollHeight / 2;
           this.logsArray = this.getSessionLogsByFrameIndexes(startIndex, endIndex);
-
           this.frameStartIndex = startIndex;
+          setTimeout(()=> {
+            this.scrollableInner.scrollTop = this.scrollableInner.scrollHeight / 2;
+          }, 0)
         } else {
           this.isRuntimeConcatLogsFlag = true;
         }
