@@ -106,6 +106,21 @@ class HttpWrapperClass {
         console.log(err, 'ERR GET MARKERS');
       })
   }
+
+  deleteSessionMarker(sessionId, markerId, callback) {
+    axios
+      .delete(EXPRESS_SERVER_URL + 'sessions/' + sessionId + '/markers', {
+        params: {
+          markerId: markerId
+        }
+      })
+      .then(res => {
+        callback();
+      })
+      .catch(err => {
+        console.warn(err, 'ERROR TO DELETE MARKER');
+      })
+  }
 }
 
 const httpWrapper = new HttpWrapperClass();

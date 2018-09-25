@@ -91,7 +91,23 @@
         };
         this.getLogsBySearchAction(searchData);
         this.logsArray = this.getSessionLogsByFrameIndexes(0, DISPLAYED_LOGS_LIMIT);
-      }, 400)
+      }, 400),
+      markerSelected: function (markerQuery) {
+
+        if(this.isEmpty(markerQuery)) {
+          return;
+        } else {
+          let fullMarkerData = this.getMarkerDataGetter(markerQuery.markerId, this.currentSessionId);
+
+          if(!fullMarkerData) return;
+
+          this.loadSelectedMarker(fullMarkerData);
+          this.frameStartIndex = fullMarkerData.firstLogIndex - 2;
+          this.isRuntimeConcatLogsFlag = false;
+          this.logsArray = this.getSessionLogsByFrameIndexes(this.frameStartIndex, this.frameStartIndex + DISPLAYED_LOGS_LIMIT);
+          this.scrollableInner.scrollTop = 50;
+        }
+      }
     },
     mounted() {
       this.scrollableInner = this.$refs['scrollableInner'];
@@ -103,10 +119,14 @@
         storedSessionLogs: 'getSessionLogs',
         getSessionLogsByFrameIndexes: 'getSessionLogsByFrameIndexes',
         getLogsFilterGetter: 'getLogsFilterGetter',
-        getLastFilteredLogInStore: 'getLastFilteredLogInStore'
+        getLastFilteredLogInStore: 'getLastFilteredLogInStore',
+        getMarkerDataGetter: 'getMarkerDataGetter'
       }),
       searchChanged() {
         return this.instantSearchModel;
+      },
+      markerSelected() {
+        return this.$route.query;
       }
     },
     methods: {
@@ -115,8 +135,17 @@
         'recordSessionLogsAction',
         'clearSessionLogs',
         'setFilteredLogsAction',
-        'getLogsBySearchAction'
+        'getLogsBySearchAction',
+        'loadSelectedMarker',
+        'resetSelectedMarker'
       ]),
+      isEmpty(obj) {
+        for (let key in obj) {
+          if (obj.hasOwnProperty(key))
+            return false;
+        }
+        return true;
+      },
       startObserveSessionLogs() {
         let listenSessionData = {
           sessionId: this.currentSessionId,
@@ -126,6 +155,7 @@
         this.$socket.emit('SOCKET_F_START_LISTEN_SESSION', listenSessionData);
       },
       stopObserveSessionLogs() {
+        this.resetSelectedMarker();
         this.$socket.emit('SOCKET_F_STOP_LISTEN_SESSION', {sessionId: this.currentSessionId});
       },
       backToTop(){

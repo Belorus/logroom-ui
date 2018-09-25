@@ -26,7 +26,6 @@
         </div>
       </el-row>
       <el-row class="sidebar_section">
-        <h4>Saved Markers</h4>
         <marker-list></marker-list>
       </el-row>
     </div>
@@ -34,7 +33,7 @@
 </template>
 
 <script>
-  import {mapActions} from "vuex"
+  import {mapActions, mapGetters} from "vuex"
   import {Message} from "element-ui";
   import SessionDetailsComponent from "Components/session-details/SessionDetailsComponent";
   import MarkerListComponent from "Components/marker-list-component/MarkerListComponent";
@@ -64,6 +63,17 @@
     },
     created() {
       this.currentSessionId = this.$route.params.id;
+    },
+    watch: {
+      getLogsFilterGetter: function(val) {
+        console.log('Filters changed', val);
+        val.map(f => this.checkedFilters.push(f))
+      }
+    },
+    computed: {
+      ...mapGetters({
+        getLogsFilterGetter: 'getLogsFilterGetter'
+      })
     },
     methods: {
       ...mapActions({

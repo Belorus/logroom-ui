@@ -17,7 +17,8 @@ import {
   SET_MARKING_PROGRESS,
   SET_MARKER_START,
   SET_MARKER_END,
-  ADD_NEW_MARKER
+  ADD_NEW_MARKER,
+  REMOVE_SESSION_MARKER
 } from "./mutation-types";
 
 const mutations = {
@@ -126,6 +127,11 @@ const mutations = {
         session.markers.push(payload.markerData);
       }
     });
+  },
+  [REMOVE_SESSION_MARKER](state, payload) {
+    let sessionToDeleteMarker = state.sessions.find(session => session.id === payload.sessionId);
+    sessionToDeleteMarker.markers = sessionToDeleteMarker.markers.filter(marker => marker.id !== payload.markerId);
+    console.log();
   }
 };
 

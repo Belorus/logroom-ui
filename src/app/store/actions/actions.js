@@ -17,7 +17,8 @@ import {
   SET_MARKER_END,
   SET_MARKER_START,
   SET_MARKING_PROGRESS,
-  ADD_NEW_MARKER
+  ADD_NEW_MARKER,
+  REMOVE_SESSION_MARKER
 } from "../mutations/mutation-types";
 
 const actions = {
@@ -84,6 +85,21 @@ const actions = {
   },
   addNewMarkerAction({commit}, payload) {
     commit(ADD_NEW_MARKER, payload);
+  },
+  loadSelectedMarker({commit}, payload) {
+    if(payload.clientFilters.levels.length > 0) {
+      commit(SET_LOGS_FILTERS, payload.clientFilters.levels);
+    }
+    commit(SET_MARKER_START, payload.startPosition);
+    commit(SET_MARKER_END, payload.endPosition);
+
+  },
+  resetSelectedMarker({commit}) {
+    commit(SET_MARKER_START, null);
+    commit(SET_MARKER_END, null);
+  },
+  removeSessionMarker({commit}, payload) {
+    commit(REMOVE_SESSION_MARKER, payload)
   }
 };
 

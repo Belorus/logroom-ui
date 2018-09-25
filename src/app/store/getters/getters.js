@@ -42,6 +42,30 @@ const getters = {
   },
   getEndMarkingPosition: state => {
     return state.markerEndPosition;
+  },
+  getSessionMarkers: state => sessionId => {
+    const sessionFound = state.sessions.find(session => session.id === sessionId);
+    if(sessionFound) {
+      return sessionFound.markers;
+    }
+    return []
+  },
+  getMarkerDataGetter: state => (markerId, sessionId) => {
+    let markerData;
+    let dataToReturn;
+    const sessionFound = state.sessions.find(session => session.id === sessionId);
+
+    if(sessionFound) {
+      markerData = sessionFound.markers.find(marker => marker.id === markerId);
+
+      let firstLogToDisplay = markerData.startPosition > markerData.endPosition
+        ? markerData.startPosition
+        : markerData.endPosition;
+      let firstLogIndex = state.sessionLogs.map(log => log.seqNumber).indexOf(firstLogToDisplay);
+
+      dataToReturn = Object.assign({}, markerData, {firstLogIndex: firstLogIndex});
+    }
+    return dataToReturn;
   }
 };
 
