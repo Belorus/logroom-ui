@@ -23,7 +23,7 @@
         ></el-button>
         <el-input
           class="search_input"
-          placeholder="Search logs..."
+          placeholder="Search logs... (start with $ to use regular exp.)"
           prefix-icon="el-icon-search"
           v-model="instantSearchModel">
         </el-input>
