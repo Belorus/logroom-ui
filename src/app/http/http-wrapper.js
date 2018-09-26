@@ -16,7 +16,7 @@ class HttpWrapperClass {
     axios
       .get(EXPRESS_SERVER_URL + ACTIVE_SESSIONS)
       .then(res => {
-        callback(res.data);
+        callback(res.data.sessions);
       })
       .catch(err => {
         errHandler(err);
@@ -81,6 +81,17 @@ class HttpWrapperClass {
       })
       .catch(err => {
         console.log(err, ' : Error');
+      })
+  }
+
+  getSessionDetailsHttp(sessionId, callback) {
+    axios
+      .get(EXPRESS_SERVER_URL + 'sessions/' + sessionId)
+      .then(res => {
+        callback(res.data);
+      })
+      .catch(err => {
+        console.warn(err, ' ERROR TO GET SESSION DETAILS');
       })
   }
 }

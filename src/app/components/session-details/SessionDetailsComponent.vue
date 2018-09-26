@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="details_wrapper" v-if="sessionDetailsData">
-      <h3>{{sessionDetailsData.additional.app_name}} - {{sessionDetailsData.additional.app_version}} - {{sessionDetailsData.logsCount}}</h3>
+      <h3>{{sessionDetailsData.additional.app_name}} - {{sessionDetailsData.additional.app_version}}</h3>
       <p class="session_id_title">
         <span>#ID</span>: {{sessionDetailsData.id}}
       </p>
@@ -43,21 +43,42 @@
 
 <script>
   import {LOG_ROOM_PAGE} from "../../router/pages";
+  import {httpWrapper} from "Http/http-wrapper";
   import {mapGetters} from "vuex";
 
   export default {
     props: {
-      sessionId: String
+      sessionId: null
+    },
+    data() {
+      return {
+        sessionDetailsData: null
+      }
+    },
+    mounted() {
+      this.getSessionDataDetails();
+    },
+    watch: {
+      sessionDetailsDataGetter: function (val) {
+        this.sessionDetailsData = val;
+      }
     },
     computed: {
       ...mapGetters({
         getSessionDetailsByIdGetter: 'getSessionDetailsByIdGetter'
       }),
-      sessionDetailsData() {
+      sessionDetailsDataGetter() {
         return this.getSessionDetailsByIdGetter(this.sessionId);
       },
       isLogroomPage() {
         return this.$route.name === LOG_ROOM_PAGE;
+      }
+    },
+    methods: {
+      getSessionDataDetails() {
+        httpWrapper.getSessionDetailsHttp(this.sessionId, (sessionData) => {
+          this.sessionDetailsData = sessionData;
+        });
       }
     }
   }
@@ -75,9 +96,11 @@
       font-weight: bold;
     }
   }
+
   .text_ellipsis {
     @include text-ellipsis;
   }
+
   .data_title {
     font-size: 12px;
     span {
