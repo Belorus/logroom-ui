@@ -168,7 +168,7 @@
         this.$router.push({name: LOG_ROOM_PAGE, params: {id: sessionId}});
       },
       initFilteredSessions() {
-        this.filteredSessionsReactive = this.activeSessions;
+        this.filteredSessionsReactive = this.activeSessions.sort(this.compareByTimeCreated);
       },
       getFilteringOptions(optionFieldName) {
         let optionsToReturn = [];
@@ -196,6 +196,18 @@
           this.filteredSessionsReactive = this.filteredSessionsReactive
             .filter(session => filteringModel.includes(session.additional[optionFieldName]));
         }
+      },
+      compareByTimeCreated(a, b) {
+        const createdAtA = a.createdAt;
+        const createdAtB = b.createdAt;
+
+        let comparison = 0;
+        if (createdAtA > createdAtB) {
+          comparison = -1;
+        } else if (createdAtA < createdAtB) {
+          comparison = 1;
+        }
+        return comparison;
       }
     }
   }
