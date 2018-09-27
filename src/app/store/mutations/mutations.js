@@ -81,27 +81,39 @@ const mutations = {
       && state.logsDisplayFilters.length > 0;
 
     if(isFilteredLogsPresent || isTypingBackWithFiltersOff) {
-      state.filteredLogs = filterQueryFromAllLogs(payload);
+      state.filteredLogs = filterLogs(state.sessionLogs,payload);
     } else if(isTypingBackWithFiltersOn) {
-      state.filteredLogs = filterQueryFromFilteredLogsTypingBackward(payload);
+      state.filteredLogs = filterLogs(state.sessionLogs, payload, true);
     } else {
-      state.filteredLogs = filterQueryFromFilteredLogs(payload);
+      state.filteredLogs = filterLogs(state.filteredLogs, payload);
     }
 
-    function filterQueryFromAllLogs(queryString) {
-      return state.sessionLogs.filter(log => log.message.toLowerCase().includes(queryString.toLowerCase())
-        || log.tag.toLowerCase().includes(queryString.toLowerCase()));
-    }
-    function filterQueryFromFilteredLogs(queryString) {
-      return state.filteredLogs.filter(log => log.message.toLowerCase().includes(queryString.toLowerCase())
-        || log.tag.toLowerCase().includes(queryString.toLowerCase()));
-    }
-    function filterQueryFromFilteredLogsTypingBackward(queryString) {
-      return state.sessionLogs.filter(log =>
-          state.logsDisplayFilters.includes(log.level)
-          && (log.message.toLowerCase().includes(payload.toLowerCase()
-          || log.tag.toLowerCase().includes(queryString.toLowerCase())))
-      );
+    function filterLogs(logs, queryString, backwardTyping) {
+      let isRegularExpression = queryString.startsWith('$');
+      let lowerCaseQueryString = queryString.toLowerCase();
+      let regExp = null;
+
+      try {
+        regExp = new RegExp(queryString.substring(1), 'i');
+      }
+      catch (e) {
+        isRegularExpression = false;
+      }
+
+      console.log('used regular', isRegularExpression);
+      
+      return logs.filter(log => {
+        if (backwardTyping && !state.logsDisplayFilters.includes(log.level)) {
+          return false;
+        }
+
+        if (isRegularExpression) {
+          return log.message.match(regExp) || log.tag.match(regExp); 
+        }
+
+        return log.message.toLowerCase().includes(lowerCaseQueryString)
+          || log.tag.toLowerCase().includes(lowerCaseQueryString);
+      });
     }
   },
   [SET_SEARCH_FILTER_STATE](state, payload) {

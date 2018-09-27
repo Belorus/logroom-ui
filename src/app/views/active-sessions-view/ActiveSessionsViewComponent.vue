@@ -1,9 +1,9 @@
 <template>
   <div class="sessions_container">
     <h2 v-if="isGetSessionsError">ERROR 2 GET SESSIONS</h2>
-
     <el-row :gutter="20" v-else style="margin: 0 20px;">
       <div class="filters_block">
+        <el-col :xs="24" :sm="8" :md="6" :lg="4" :xl="2">
         <el-select
           v-model="gamesNameModel"
           multiple
@@ -16,7 +16,9 @@
             :value="name">
           </el-option>
         </el-select>
+        </el-col>
 
+        <el-col :xs="24" :sm="8" :md="6" :lg="4" :xl="2">
         <el-select
           v-model="gamesVersionModel"
           multiple
@@ -29,7 +31,9 @@
             :value="name">
           </el-option>
         </el-select>
+        </el-col>
 
+        <el-col :xs="24" :sm="8" :md="6" :lg="4" :xl="2">
         <el-select
           v-model="gamesDeviceModel"
           multiple
@@ -42,7 +46,41 @@
             :value="name">
           </el-option>
         </el-select>
+        </el-col>
+
+        <el-col :xs="24" :sm="8" :md="6" :lg="4" :xl="2">
+        <el-select
+          v-model="gamesDeviceNameModel"
+          multiple
+          collapse-tags
+          placeholder="Select Device Name">
+          <el-option
+            v-for="name in devicesNames"
+            :key="name"
+            :label="name"
+            :value="name">
+          </el-option>
+        </el-select>
+        </el-col>
+
+        <el-col :xs="24" :sm="8" :md="6" :lg="4" :xl="2">
+        <el-select
+          v-model="gamesBranchModel"
+          multiple
+          collapse-tags
+          placeholder="Select Device Branch">
+          <el-option
+            v-for="name in devicesBranches"
+            :key="name"
+            :label="name"
+            :value="name">
+          </el-option>
+        </el-select>
+        </el-col>
       </div>
+    </el-row>
+
+    <el-row :gutter="20" v-if="!isGetSessionsError" style="margin: 0 20px;">
       <el-col :xs="24" :sm="12" :md="8" :lg="6" :xl="4"
               v-for="session in filteredSessionsReactive" :key="session.id">
         <el-card class="box-card">
@@ -63,6 +101,8 @@
   const APP_NAME_FIELD = 'app_name';
   const APP_VERSION_FIELD = 'app_version';
   const DEVICE_MODEL_FIELD = 'device_model';
+  const DEVICE_NAME_FIELD = 'device_name';
+  const DEVICE_BRANCH_FIELD = 'branch';
 
   export default {
     data() {
@@ -70,6 +110,8 @@
         gamesNameModel: [],
         gamesVersionModel: [],
         gamesDeviceModel: [],
+        gamesDeviceNameModel: [],
+        gamesBranchModel: [],
         filteredSessionsReactive: []
       }
     },
@@ -89,6 +131,12 @@
       },
       gamesDeviceModel: function () {
         this.calculateFilterSessions();
+      },
+      gamesDeviceNameModel: function () {
+        this.calculateFilterSessions();
+      },
+      gamesBranchModel: function () {
+        this.calculateFilterSessions();
       }
     },
     mounted() {
@@ -107,6 +155,12 @@
       },
       gamesDevices() {
         return this.getFilteringOptions(DEVICE_MODEL_FIELD);
+      },
+      devicesNames() {
+        return this.getFilteringOptions(DEVICE_NAME_FIELD);
+      },
+      devicesBranches() {
+        return this.getFilteringOptions(DEVICE_BRANCH_FIELD);
       },
     },
     methods: {
@@ -134,6 +188,8 @@
         this.filterByField(this.gamesNameModel, APP_NAME_FIELD);
         this.filterByField(this.gamesVersionModel, APP_VERSION_FIELD);
         this.filterByField(this.gamesDeviceModel, DEVICE_MODEL_FIELD);
+        this.filterByField(this.gamesDeviceNameModel, DEVICE_NAME_FIELD);
+        this.filterByField(this.gamesBranchModel, DEVICE_BRANCH_FIELD);
       },
       filterByField(filteringModel, optionFieldName) {
         if(filteringModel.length > 0) {
