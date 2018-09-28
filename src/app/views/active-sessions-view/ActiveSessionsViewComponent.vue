@@ -3,79 +3,79 @@
     <h2 v-if="isGetSessionsError">ERROR 2 GET SESSIONS</h2>
     <el-row :gutter="20" v-else style="margin: 0 20px;">
       <div class="filters_block">
-        <el-col :xs="24" :sm="8" :md="6" :lg="4" :xl="2">
-        <el-select
-          v-model="gamesNameModel"
-          multiple
-          collapse-tags
-          placeholder="Select Games">
-          <el-option
-            v-for="name in gamesNames"
-            :key="name"
-            :label="name"
-            :value="name">
-          </el-option>
-        </el-select>
+        <el-col :xs="24" :sm="8" :md="6" :lg="4" :xl="4">
+          <el-select
+            v-model="gamesNameModel"
+            multiple
+            collapse-tags
+            placeholder="Select Games">
+            <el-option
+              v-for="name in gamesNames"
+              :key="name"
+              :label="name"
+              :value="name">
+            </el-option>
+          </el-select>
         </el-col>
 
-        <el-col :xs="24" :sm="8" :md="6" :lg="4" :xl="2">
-        <el-select
-          v-model="gamesVersionModel"
-          multiple
-          collapse-tags
-          placeholder="Select Versions">
-          <el-option
-            v-for="name in gamesVersions"
-            :key="name"
-            :label="name"
-            :value="name">
-          </el-option>
-        </el-select>
+        <el-col :xs="24" :sm="8" :md="6" :lg="4" :xl="4">
+          <el-select
+            v-model="gamesVersionModel"
+            multiple
+            collapse-tags
+            placeholder="Select Versions">
+            <el-option
+              v-for="name in gamesVersions"
+              :key="name"
+              :label="name"
+              :value="name">
+            </el-option>
+          </el-select>
         </el-col>
 
-        <el-col :xs="24" :sm="8" :md="6" :lg="4" :xl="2">
-        <el-select
-          v-model="gamesDeviceModel"
-          multiple
-          collapse-tags
-          placeholder="Select Devices">
-          <el-option
-            v-for="name in gamesDevices"
-            :key="name"
-            :label="name"
-            :value="name">
-          </el-option>
-        </el-select>
+        <el-col :xs="24" :sm="8" :md="6" :lg="4" :xl="4">
+          <el-select
+            v-model="gamesDeviceModel"
+            multiple
+            collapse-tags
+            placeholder="Select Devices">
+            <el-option
+              v-for="name in gamesDevices"
+              :key="name"
+              :label="name"
+              :value="name">
+            </el-option>
+          </el-select>
         </el-col>
 
-        <el-col :xs="24" :sm="8" :md="6" :lg="4" :xl="2">
-        <el-select
-          v-model="gamesDeviceNameModel"
-          multiple
-          collapse-tags
-          placeholder="Select Device Name">
-          <el-option
-            v-for="name in devicesNames"
-            :key="name"
-            :label="name"
-            :value="name">
-          </el-option>
-        </el-select>
+        <el-col :xs="24" :sm="8" :md="6" :lg="4" :xl="4">
+          <el-select
+            v-model="gamesDeviceNameModel"
+            multiple
+            collapse-tags
+            placeholder="Select Device Name">
+            <el-option
+              v-for="name in devicesNames"
+              :key="name"
+              :label="name"
+              :value="name">
+            </el-option>
+          </el-select>
         </el-col>
 
-        <el-col :xs="24" :sm="8" :md="6" :lg="4" :xl="2">
-        <el-select
-          v-model="gamesBranchModel"
-          multiple
-          collapse-tags
-          placeholder="Select Device Branch">
-          <el-option
-            v-for="name in devicesBranches"
-            :key="name"
-            :label="name"
-            :value="name">
-          </el-option>
-        </el-select>
+        <el-col :xs="24" :sm="8" :md="6" :lg="4" :xl="4">
+          <el-select
+            v-model="gamesBranchModel"
+            multiple
+            collapse-tags
+            placeholder="Select Device Branch">
+            <el-option
+              v-for="name in devicesBranches"
+              :key="name"
+              :label="name"
+              :value="name">
+            </el-option>
+          </el-select>
         </el-col>
       </div>
     </el-row>
@@ -84,6 +84,7 @@
       <el-col :xs="24" :sm="12" :md="8" :lg="6" :xl="4"
               v-for="session in filteredSessionsReactive" :key="session.id">
         <el-card class="box-card">
+          <i class="el-icon-time" v-if="millisecondsToSeconds(session.updatedAt) > 60"></i>
           <session-details v-if="session.id" :sessionId="session.id"></session-details>
           <el-button type="primary" @click="navToLogRoom(session.id)">Connect To Session</el-button>
         </el-card>
@@ -93,8 +94,10 @@
 </template>
 
 <script>
-  import {mapGetters} from "vuex";
+  import {mapGetters, mapActions} from "vuex";
+  import {httpWrapper} from "Http/http-wrapper";
   import {LOG_ROOM_PAGE} from "../../router/pages";
+  import {UPDATE_SESSIONS_TIMER} from "../../shared/config-util/config-util";
   import NavigationComponent from "Components/navigation/NavigationComponent";
   import SessionDetailsComponent from "Components/session-details/SessionDetailsComponent";
 
@@ -112,7 +115,8 @@
         gamesDeviceModel: [],
         gamesDeviceNameModel: [],
         gamesBranchModel: [],
-        filteredSessionsReactive: []
+        filteredSessionsReactive: [],
+        httpIntervalId: null
       }
     },
     components: {
@@ -139,8 +143,15 @@
         this.calculateFilterSessions();
       }
     },
+    created(){
+      this.getAllActiveSessionsByHttp();
+    },
     mounted() {
       this.initFilteredSessions();
+      this.onLoad();
+    },
+    beforeDestroy() {
+      clearInterval(this.httpIntervalId)
     },
     computed: {
       ...mapGetters({
@@ -161,18 +172,42 @@
       },
       devicesBranches() {
         return this.getFilteringOptions(DEVICE_BRANCH_FIELD);
-      },
+      }
     },
     methods: {
+      ...mapActions({
+        getActiveSessionsAction: 'getActiveSessionsAction'
+      }),
+      onLoad() {
+        this.httpIntervalId = setInterval(() => {
+          this.getAllActiveSessionsByHttp();
+        }, UPDATE_SESSIONS_TIMER)
+      },
+      getAllActiveSessionsByHttp() {
+        httpWrapper.getActiveSessions(
+          sessionsData => {
+            let sessionIds = [];
+            sessionsData.map(sessionDataObj => {
+              let sessionObj = Object.assign({}, sessionDataObj, {id: sessionDataObj.id});
+              sessionIds.push(sessionObj);
+            });
+            this.getActiveSessionsAction(sessionIds);
+          },
+          err => {
+            console.log(err, 'GET ACTIVE SESSIONS OVER HTTP MODULE ERROR OCCURED');
+          }
+        )
+      },
       navToLogRoom(sessionId) {
         this.$router.push({name: LOG_ROOM_PAGE, params: {id: sessionId}});
       },
       initFilteredSessions() {
         this.filteredSessionsReactive = this.activeSessions.sort(this.compareByTimeCreated);
+        this.calculateFilterSessions();
       },
       getFilteringOptions(optionFieldName) {
         let optionsToReturn = [];
-        if(this.filteredSessionsReactive.length > 0) {
+        if (this.filteredSessionsReactive.length > 0) {
           this.filteredSessionsReactive.map(session => {
             let optionName = session.additional[optionFieldName];
             if (!optionsToReturn.includes(optionName)) {
@@ -192,7 +227,7 @@
         this.filterByField(this.gamesBranchModel, DEVICE_BRANCH_FIELD);
       },
       filterByField(filteringModel, optionFieldName) {
-        if(filteringModel.length > 0) {
+        if (filteringModel.length > 0) {
           this.filteredSessionsReactive = this.filteredSessionsReactive
             .filter(session => filteringModel.includes(session.additional[optionFieldName]));
         }
@@ -208,6 +243,9 @@
           comparison = 1;
         }
         return comparison;
+      },
+      millisecondsToSeconds(timestamp) {
+        return Math.floor((Date.now() - timestamp)/1000)
       }
     }
   }
@@ -219,6 +257,7 @@
   .sessions_container {
     padding-bottom: $footer-height;
   }
+
   .filters_block {
     margin-bottom: 20px;
     .el-select {
@@ -228,10 +267,19 @@
       }
     }
   }
+
   .el-col {
     margin-bottom: 20px;
   }
+
   .box-card {
+    position: relative;
+    .el-icon-time {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      color: orange;
+    }
     h3 {
       margin-top: 0;
     }

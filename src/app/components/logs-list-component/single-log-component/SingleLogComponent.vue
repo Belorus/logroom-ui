@@ -2,7 +2,7 @@
   <div :class="{is_odd: isOdd}"
        class="list_item">
     <span class="timestamp">
-      {{formattedTimestamp(log.timestamp)}}
+      {{log.timestamp | timistampFilter}}
     </span>
     <span class="log_level"
           :class="{
@@ -21,7 +21,6 @@
 </template>
 
 <script>
-  import {formattedTimestampUtil} from "Utils/utils";
   import {
     TRACE_LOG_TYPE,
     DEBUG_LOG_TYPE,
@@ -29,6 +28,7 @@
     INFO_LOG_TYPE,
     ERROR_LOG_TYPE
   } from "../../../shared/config-util/config-util";
+  import {filtersMixin} from "Utils/filters-mixin";
 
   export default {
     name: 'single-log',
@@ -40,6 +40,7 @@
     props: {
       log: Object
     },
+    mixins: [filtersMixin],
     computed: {
       isOdd() {
         return this.log.seqNumber % 2 === 0;
@@ -58,11 +59,6 @@
       },
       isError() {
         return this.log.level === ERROR_LOG_TYPE;
-      }
-    },
-    methods: {
-      formattedTimestamp(timestampData) {
-        return formattedTimestampUtil(timestampData);
       }
     }
   }

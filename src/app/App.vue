@@ -7,7 +7,6 @@
 
 <script>
   import {mapActions} from "vuex";
-  import {httpWrapper} from "./http/http-wrapper";
   import FooterComponent from "Components/footer-component/FooterComponent"
 
   export default {
@@ -17,7 +16,6 @@
     sockets: {
       connect: function () {
         console.log('socket connected');
-        this.getAllActiveSessionsByHttp();
       },
       disconnect: function () {
         this.clearActiveSessions();
@@ -35,26 +33,10 @@
     },
     methods: {
       ...mapActions({
-        getActiveSessionsAction: 'getActiveSessionsAction',
         clearActiveSessions: 'clearActiveSessions',
         addNewActiveSession: 'addNewActiveSession',
         updateSessionData: 'updateSessionData'
-      }),
-      getAllActiveSessionsByHttp() {
-        httpWrapper.getActiveSessions(
-          sessionsData => {
-            let sessionIds = [];
-            sessionsData.map(sessionDataObj => {
-              let sessionObj = Object.assign({}, sessionDataObj, {id: sessionDataObj.id});
-              sessionIds.push(sessionObj);
-            });
-            this.getActiveSessionsAction(sessionIds);
-          },
-          err => {
-            console.log(err, 'GET ACTIVE SESSIONS OVER HTTP MODULE ERROR OCCURED');
-          }
-        )
-      }
+      })
     }
   }
 </script>
