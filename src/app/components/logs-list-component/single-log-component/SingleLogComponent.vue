@@ -18,7 +18,8 @@
             debug_color: isDebug,
             warn_color: isWarn,
             info_color: isInfo,
-            error_color: isError
+            error_color: isError,
+            fatal_color: isFatal
           }">
       {{log.level}}
     </span>
@@ -36,7 +37,8 @@
     DEBUG_LOG_TYPE,
     WARN_LOG_TYPE,
     INFO_LOG_TYPE,
-    ERROR_LOG_TYPE
+    ERROR_LOG_TYPE,
+    FATAL_LOG_TYPE
   } from "../../../shared/config-util/config-util";
   import {filtersMixin} from "Utils/filters-mixin";
 
@@ -92,6 +94,9 @@
       },
       isError() {
         return this.log.level === ERROR_LOG_TYPE;
+      },
+      isFatal() {
+        return this.log.level === FATAL_LOG_TYPE;
       }
     },
     methods: {
@@ -275,5 +280,9 @@
 
   .error_color {
     background: lighten($error-color, 10);
+  }
+
+  .fatal_color {
+    background: red;
   }
 </style>

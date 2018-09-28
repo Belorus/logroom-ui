@@ -43,10 +43,11 @@
     DEBUG_LOG_TYPE,
     WARN_LOG_TYPE,
     INFO_LOG_TYPE,
-    ERROR_LOG_TYPE
+    ERROR_LOG_TYPE,
+    FATAL_LOG_TYPE
   } from "../../shared/config-util/config-util";
 
-  const filterLogsOptions = [TRACE_LOG_TYPE, DEBUG_LOG_TYPE, WARN_LOG_TYPE, INFO_LOG_TYPE, ERROR_LOG_TYPE];
+  const filterLogsOptions = [TRACE_LOG_TYPE, DEBUG_LOG_TYPE, INFO_LOG_TYPE, WARN_LOG_TYPE, ERROR_LOG_TYPE, FATAL_LOG_TYPE];
 
   export default {
     data() {

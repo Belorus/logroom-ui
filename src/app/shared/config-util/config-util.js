@@ -8,6 +8,7 @@ const DEBUG_LOG_TYPE = 'DEBUG';
 const WARN_LOG_TYPE = 'WARN';
 const INFO_LOG_TYPE = 'INFO';
 const ERROR_LOG_TYPE = 'ERROR';
+const FATAL_LOG_TYPE = 'FATAL';
 
 export {
   OLD_LOGS_LIMIT,
@@ -18,5 +19,6 @@ export {
   WARN_LOG_TYPE,
   INFO_LOG_TYPE,
   ERROR_LOG_TYPE,
+  FATAL_LOG_TYPE,
   UPDATE_SESSIONS_TIMER
 };
