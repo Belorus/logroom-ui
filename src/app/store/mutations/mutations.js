@@ -18,7 +18,7 @@ import {
 
 const mutations = {
   [ADD_SESSION](state, payload) {
-    payload.map(session => state.sessions.push(session));
+    state.sessions = payload;
   },
   [ADD_NEW_ACTIVE_SESSION](state, payload) {
     state.sessions.push(payload);

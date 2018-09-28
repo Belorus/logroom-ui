@@ -56,7 +56,11 @@
       }
     },
     mounted() {
-      this.getSessionDataDetails();
+      if (!this.isLogroomPage) {
+        this.sessionDetailsData = this.getSessionDetailsByIdGetter(this.sessionId);
+      } else {
+        this.getSessionDataDetails();
+      }
     },
     watch: {
       sessionDetailsDataGetter: function (val) {
