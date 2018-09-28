@@ -5,8 +5,7 @@ const BASE_JSDB_URL = "http://localhost:3000/";
  * TODO change dasic url later
  * @type {string}
  */
-const EXPRESS_SERVER_URL = "http://10.61.20.62:4000/";
-// const EXPRESS_SERVER_URL = "http://10.61.10.71:4000/";
+const EXPRESS_SERVER_URL = "http://10.61.10.71:4000/";
 const DIVIDER = "/";
 const ACTIVE_SESSIONS = "activeSessions";
 const LOGS = "logs";
@@ -17,7 +16,7 @@ class HttpWrapperClass {
     axios
       .get(EXPRESS_SERVER_URL + ACTIVE_SESSIONS)
       .then(res => {
-        callback(res.data);
+        callback(res.data.sessions);
       })
       .catch(err => {
         errHandler(err);
@@ -82,6 +81,17 @@ class HttpWrapperClass {
       })
       .catch(err => {
         console.log(err, ' : Error');
+      })
+  }
+
+  getSessionDetailsHttp(sessionId, callback) {
+    axios
+      .get(EXPRESS_SERVER_URL + 'sessions/' + sessionId)
+      .then(res => {
+        callback(res.data);
+      })
+      .catch(err => {
+        console.warn(err, ' ERROR TO GET SESSION DETAILS');
       })
   }
 

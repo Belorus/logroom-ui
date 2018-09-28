@@ -10,7 +10,7 @@
     ></el-button>
     <b>{{log.seqNumber}} - {{getMarkerProgressFlagGetter}}</b>
     <span class="timestamp">
-      {{formattedTimestamp(log.timestamp)}}
+      {{log.timestamp | timistampFilter}}
     </span>
     <span class="log_level"
           :class="{
@@ -30,7 +30,6 @@
 
 <script>
   import {mapGetters, mapActions} from "vuex";
-  import {formattedTimestampUtil} from "Utils/utils";
   import {httpWrapper} from "Http/http-wrapper";
   import {
     TRACE_LOG_TYPE,
@@ -39,6 +38,7 @@
     INFO_LOG_TYPE,
     ERROR_LOG_TYPE
   } from "../../../shared/config-util/config-util";
+  import {filtersMixin} from "Utils/filters-mixin";
 
   export default {
     name: 'single-log',
@@ -52,6 +52,7 @@
     props: {
       log: Object
     },
+    mixins: [filtersMixin],
     created() {
       this.currentSessionId = this.$route.params.id;
     },
@@ -192,10 +193,9 @@
     display: inline-block;
     position: relative;
     width: 100%;
-    max-width: 1260px;
     word-break: break-all;
-    -webkit-margin-before: 0.4em;
-    -webkit-margin-after: 0.4em;
+    -webkit-margin-before: 0.2em;
+    -webkit-margin-after: 0.2em;
     -webkit-margin-start: 0;
     -webkit-margin-end: 0;
     font-family: monospace;
@@ -230,7 +230,7 @@
 
   .log_thread {
     display: inline-block;
-    width: 60px;
+    width: 45px;
   }
 
   .log_message {

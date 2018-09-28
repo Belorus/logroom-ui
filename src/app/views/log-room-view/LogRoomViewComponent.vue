@@ -23,7 +23,7 @@
         ></el-button>
         <el-input
           class="search_input"
-          placeholder="Search logs..."
+          placeholder="Search logs... (start with $ to use regular exp.)"
           prefix-icon="el-icon-search"
           v-model="instantSearchModel">
         </el-input>
@@ -44,7 +44,9 @@
   export default {
     sockets: {
       SOCKET_B_PUSH_LOGS: function (data) {
-        this.getAllSessionLogs(data);
+        if(data.logs.length >= OLD_LOGS_LIMIT) {
+          this.getAllSessionLogs(data);
+        }
         this.receiveLogsHandler(data);
         this.isLogsFound = true;
       }
@@ -207,22 +209,23 @@
         }
 
         if (isContainerTopReached) {
-          this.topCalculateDisplayedLogs(scrollHeight);
+          this.topCalculateDisplayedLogs();
         }
 
         if (isContainerBottomReached && this.logsArray.length >= DISPLAYED_LOGS_LIMIT) {
           this.bottomCalculateDisplayedLogs();
         }
       },
-      topCalculateDisplayedLogs(scrollHeight) {
+      topCalculateDisplayedLogs() {
         if (this.frameStartIndex > 0) {
           let startIndex = this.topCalculateStartIndex();
           let endIndex = this.topCalculateEndIndex();
 
-          this.scrollableInner.scrollTop = scrollHeight / 2;
           this.logsArray = this.getSessionLogsByFrameIndexes(startIndex, endIndex);
-
           this.frameStartIndex = startIndex;
+          setTimeout(()=> {
+            this.scrollableInner.scrollTop = this.scrollableInner.scrollHeight / 2;
+          }, 0)
         } else {
           this.isRuntimeConcatLogsFlag = true;
         }
@@ -292,7 +295,7 @@
     @include display-flex;
     top: $header-height;
     right: 0;
-    bottom: 0;
+    bottom: $footer-height;
     left: 0;
   }
 
@@ -318,7 +321,6 @@
       position: absolute;
       bottom: -60px;
       width: calc(100% - 40px);
-      max-width: 1260px;
       margin: 0 20px;
     }
     .back_to_top {

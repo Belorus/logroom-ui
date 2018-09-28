@@ -43,21 +43,46 @@
 
 <script>
   import {LOG_ROOM_PAGE} from "../../router/pages";
+  import {httpWrapper} from "Http/http-wrapper";
   import {mapGetters} from "vuex";
 
   export default {
     props: {
-      sessionId: String
+      sessionId: null
+    },
+    data() {
+      return {
+        sessionDetailsData: null
+      }
+    },
+    mounted() {
+      if (!this.isLogroomPage) {
+        this.sessionDetailsData = this.getSessionDetailsByIdGetter(this.sessionId);
+      } else {
+        this.getSessionDataDetails();
+      }
+    },
+    watch: {
+      sessionDetailsDataGetter: function (val) {
+        this.sessionDetailsData = val;
+      }
     },
     computed: {
       ...mapGetters({
         getSessionDetailsByIdGetter: 'getSessionDetailsByIdGetter'
       }),
-      sessionDetailsData() {
+      sessionDetailsDataGetter() {
         return this.getSessionDetailsByIdGetter(this.sessionId);
       },
       isLogroomPage() {
         return this.$route.name === LOG_ROOM_PAGE;
+      }
+    },
+    methods: {
+      getSessionDataDetails() {
+        httpWrapper.getSessionDetailsHttp(this.sessionId, (sessionData) => {
+          this.sessionDetailsData = sessionData;
+        });
       }
     }
   }
@@ -75,9 +100,11 @@
       font-weight: bold;
     }
   }
+
   .text_ellipsis {
     @include text-ellipsis;
   }
+
   .data_title {
     font-size: 12px;
     span {
