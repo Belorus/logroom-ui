@@ -65,12 +65,6 @@
     created() {
       this.currentSessionId = this.$route.params.id;
     },
-    watch: {
-      getLogsFilterGetter: function(val) {
-        console.log('Filters changed', val);
-        val.map(f => this.checkedFilters.push(f))
-      }
-    },
     computed: {
       ...mapGetters({
         getLogsFilterGetter: 'getLogsFilterGetter'

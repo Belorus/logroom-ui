@@ -87,12 +87,8 @@ const actions = {
     commit(ADD_NEW_MARKER, payload);
   },
   loadSelectedMarker({commit}, payload) {
-    if(payload.clientFilters.levels.length > 0) {
-      commit(SET_LOGS_FILTERS, payload.clientFilters.levels);
-    }
     commit(SET_MARKER_START, payload.startPosition);
     commit(SET_MARKER_END, payload.endPosition);
-
   },
   resetSelectedMarker({commit}) {
     commit(SET_MARKER_START, null);

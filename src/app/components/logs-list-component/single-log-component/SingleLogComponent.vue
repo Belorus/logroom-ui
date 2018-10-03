@@ -6,9 +6,8 @@
       type="primary"
       plain
       size="mini"
-      :icon="getMarkerProgressFlagGetter ? 'el-icon-minus': 'el-icon-plus'"
+      :icon="getMarkerProgressFlagGetter ? 'el-icon-edit': 'el-icon-plus'"
     ></el-button>
-    <b>{{log.seqNumber}} - {{getMarkerProgressFlagGetter}}</b>
     <span class="timestamp">
       {{log.timestamp | timistampFilter}}
     </span>
@@ -199,14 +198,12 @@
     position: relative;
     width: 100%;
     word-break: break-all;
-    -webkit-margin-before: 0.2em;
-    -webkit-margin-after: 0.2em;
+    padding: 5px 0;
     -webkit-margin-start: 0;
     -webkit-margin-end: 0;
     font-family: monospace;
     font-size: 14px;
     line-height: 22px;
-    border-radius: 3px;
     &:hover .el-button {
       opacity: 1;
     }
@@ -222,7 +219,7 @@
     background: #f9f9f9;
   }
   .highlighted_log {
-    background: lightblue;
+    background: lighten(#42A5F5, 30%);
   }
 
   .timestamp {

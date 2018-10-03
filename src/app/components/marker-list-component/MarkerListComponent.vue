@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h4>Saved Markers</h4>
+    <h4 class="markers_title">Saved Markers</h4>
     <div class="markers_container">
       <div class="session_marker"
            :class="{selected_marker: selectedMarker === marker.id}"
@@ -86,6 +86,9 @@
 <style lang="scss" scoped>
   @import "../../../assets/styles/mixins";
 
+  .markers_title {
+    margin: 10px 0;
+  }
   .markers_container {
     max-height: 200px;
     border: 1px solid #fafafa;
