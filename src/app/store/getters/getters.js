@@ -28,8 +28,44 @@ const getters = {
   getLogsFilterGetter: state => {
     return state.logsDisplayFilters;
   },
+  getSearchQueryString: state => {
+    return state.searchString;
+  },
   getLastFilteredLogInStore: state => {
     return state.filteredLogs.length > 0 ? state.filteredLogs[state.filteredLogs.length - 1] : false;
+  },
+  getMarkerProgressFlagGetter: state => {
+    return state.isMarkingInProgress;
+  },
+  getStartMarkingPosition: state => {
+    return state.markerStartPosition;
+  },
+  getEndMarkingPosition: state => {
+    return state.markerEndPosition;
+  },
+  getSessionMarkers: state => sessionId => {
+    const sessionFound = state.sessions.find(session => session.id === sessionId);
+    if(sessionFound) {
+      return sessionFound.markers;
+    }
+    return []
+  },
+  getMarkerDataGetter: state => (markerId, sessionId) => {
+    let markerData;
+    let dataToReturn;
+    const sessionFound = state.sessions.find(session => session.id === sessionId);
+
+    if(sessionFound) {
+      markerData = sessionFound.markers.find(marker => marker.id === markerId);
+
+      let firstLogToDisplay = markerData.startPosition > markerData.endPosition
+        ? markerData.startPosition
+        : markerData.endPosition;
+      let firstLogIndex = state.sessionLogs.map(log => log.seqNumber).indexOf(firstLogToDisplay);
+
+      dataToReturn = Object.assign({}, markerData, {firstLogIndex: firstLogIndex});
+    }
+    return dataToReturn;
   }
 };
 

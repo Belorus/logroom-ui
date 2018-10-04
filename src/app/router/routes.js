@@ -26,7 +26,8 @@ const routes = [
   {
     name: LOG_ROOM_PAGE,
     path:'/log-room/:id',
-    component: LogRoomViewComponent
+    component: LogRoomViewComponent,
+    props: { merkerId: false }
   }
 ];
 

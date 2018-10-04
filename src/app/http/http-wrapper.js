@@ -94,6 +94,43 @@ class HttpWrapperClass {
         console.warn(err, ' ERROR TO GET SESSION DETAILS');
       })
   }
+
+  postNewSessionMarker(markerData, sessionId, callback) {
+    axios
+      .post(EXPRESS_SERVER_URL + 'sessions/' + sessionId + '/markers', markerData)
+      .then(res=> {
+        callback(res.data);
+      })
+      .catch(err => {
+        console.log(err, 'ERROR OCCURED');
+      })
+  }
+
+  getSessionMarkers(sessionId) {
+    axios
+      .get(EXPRESS_SERVER_URL + 'sessions/' + sessionId + '/markers')
+      .then(res => {
+        console.log(res, 'GET MARKERS');
+      })
+      .catch(err => {
+        console.log(err, 'ERR GET MARKERS');
+      })
+  }
+
+  deleteSessionMarker(sessionId, markerId, callback) {
+    axios
+      .delete(EXPRESS_SERVER_URL + 'sessions/' + sessionId + '/markers', {
+        params: {
+          markerId: markerId
+        }
+      })
+      .then(res => {
+        callback();
+      })
+      .catch(err => {
+        console.warn(err, 'ERROR TO DELETE MARKER');
+      })
+  }
 }
 
 const httpWrapper = new HttpWrapperClass();

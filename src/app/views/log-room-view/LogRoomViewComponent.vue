@@ -9,7 +9,6 @@
         <div class="content_inner" ref="scrollableInner">
           <logs-list v-if="logsArray.length > 0" :logsData="logsArray"></logs-list>
           <div v-if="isLogsFound && logsArray.length === 0" class="not_found_block">
-            <!--<img src="http://theinspirationgrid.com/app/uploads/2017/03/art-arinze-stanley-10.jpg" alt="">-->
             <img src="https://cdn-images-1.medium.com/max/1600/0*AnVCpSvrAeldg3Rn." alt="">
             <p>Can't find any logs!</p>
           </div>
@@ -37,7 +36,7 @@
   import HeaderComponent from "Components/header-component/HeaderComponent";
   import SidebarMainComponent from "Components/sidebar-component/SidebarMainComponent";
   import LogsListComponent from "Components/logs-list-component/LogsListComponent";
-  import {throttle, debounce} from "../../shared/utils/utils";
+  import {throttle, debounce, isObjectEmpty} from "../../shared/utils/utils";
   import {httpWrapper} from "Http/http-wrapper";
   import {IS_OLD_LOGS_REQUIRED, OLD_LOGS_LIMIT, DISPLAYED_LOGS_LIMIT} from "../../shared/config-util/config-util";
 
@@ -93,7 +92,10 @@
         };
         this.getLogsBySearchAction(searchData);
         this.logsArray = this.getSessionLogsByFrameIndexes(0, DISPLAYED_LOGS_LIMIT);
-      }, 400)
+      }, 400),
+      markerSelected: function () {
+        this.markerLoadHandler();
+      }
     },
     mounted() {
       this.scrollableInner = this.$refs['scrollableInner'];
@@ -103,12 +105,17 @@
       ...mapGetters({
         isGetSessionsError: 'sessionsGetError',
         storedSessionLogs: 'getSessionLogs',
+        getSessionDetailsByIdGetter: 'getSessionDetailsByIdGetter',
         getSessionLogsByFrameIndexes: 'getSessionLogsByFrameIndexes',
         getLogsFilterGetter: 'getLogsFilterGetter',
-        getLastFilteredLogInStore: 'getLastFilteredLogInStore'
+        getLastFilteredLogInStore: 'getLastFilteredLogInStore',
+        getMarkerDataGetter: 'getMarkerDataGetter'
       }),
       searchChanged() {
         return this.instantSearchModel;
+      },
+      markerSelected() {
+        return this.$route.query;
       }
     },
     methods: {
@@ -117,7 +124,10 @@
         'recordSessionLogsAction',
         'clearSessionLogs',
         'setFilteredLogsAction',
-        'getLogsBySearchAction'
+        'getLogsBySearchAction',
+        'loadSelectedMarker',
+        'resetSelectedMarker',
+        'updateSessionData'
       ]),
       startObserveSessionLogs() {
         let listenSessionData = {
@@ -128,6 +138,7 @@
         this.$socket.emit('SOCKET_F_START_LISTEN_SESSION', listenSessionData);
       },
       stopObserveSessionLogs() {
+        this.resetSelectedMarker();
         this.$socket.emit('SOCKET_F_STOP_LISTEN_SESSION', {sessionId: this.currentSessionId});
       },
       backToTop(){
@@ -237,6 +248,9 @@
         this.logsArray = this.getSessionLogsByFrameIndexes(0, DISPLAYED_LOGS_LIMIT);
       },
       getAllSessionLogs(logsReceived) {
+        httpWrapper.getSessionDetailsHttp(this.currentSessionId, (sessionData) => {
+          this.updateSessionData(sessionData);
+        });
         if (this.storedSessionLogs.length === 0) {
           let lastLoadedLog = logsReceived.logs[logsReceived.logs.length - 1].seqNumber;
           let logsData = {
@@ -249,7 +263,21 @@
               logs: logsResponse,
               isOld: true
             });
+            this.markerLoadHandler();
           });
+        }
+      },
+      markerLoadHandler() {
+        if(!isObjectEmpty(this.$route.query)) {
+          let fullMarkerData = this.getMarkerDataGetter(this.$route.query.markerId, this.currentSessionId);
+
+          if(!fullMarkerData) return;
+
+          this.loadSelectedMarker(fullMarkerData);
+          this.frameStartIndex = fullMarkerData.firstLogIndex - 2;
+          this.isRuntimeConcatLogsFlag = false;
+          this.logsArray = this.getSessionLogsByFrameIndexes(this.frameStartIndex, this.frameStartIndex + DISPLAYED_LOGS_LIMIT);
+          this.scrollableInner.scrollTop = 50;
         }
       }
     }

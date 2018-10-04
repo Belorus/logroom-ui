@@ -13,7 +13,12 @@ import {
   RESET_FILTERED_LOGS,
   GET_LOGS_BY_TEXT_SEARCH,
   SET_SEARCH_FILTER_STATE,
-  SET_SEARCH_STRING
+  SET_SEARCH_STRING,
+  SET_MARKER_END,
+  SET_MARKER_START,
+  SET_MARKING_PROGRESS,
+  ADD_NEW_MARKER,
+  REMOVE_SESSION_MARKER
 } from "../mutations/mutation-types";
 
 const actions = {
@@ -68,6 +73,29 @@ const actions = {
   },
   recordSessionLogsAction({commit}, payload) {
     commit(RECORD_SESSION_LOGS_MUTATION, payload);
+  },
+  changeMarkerProgressState({commit}) {
+    commit(SET_MARKING_PROGRESS);
+  },
+  setMarkerStartPosition({commit}, payload) {
+    commit(SET_MARKER_START, payload);
+  },
+  setMarkerEndPosition({commit}, payload) {
+    commit(SET_MARKER_END, payload);
+  },
+  addNewMarkerAction({commit}, payload) {
+    commit(ADD_NEW_MARKER, payload);
+  },
+  loadSelectedMarker({commit}, payload) {
+    commit(SET_MARKER_START, payload.startPosition);
+    commit(SET_MARKER_END, payload.endPosition);
+  },
+  resetSelectedMarker({commit}) {
+    commit(SET_MARKER_START, null);
+    commit(SET_MARKER_END, null);
+  },
+  removeSessionMarker({commit}, payload) {
+    commit(REMOVE_SESSION_MARKER, payload)
   }
 };
 

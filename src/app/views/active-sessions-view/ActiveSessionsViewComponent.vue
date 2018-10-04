@@ -5,6 +5,7 @@
       <div class="filters_block">
         <el-col :xs="24" :sm="8" :md="6" :lg="4" :xl="4">
           <el-select
+            filterable
             v-model="gamesNameModel"
             multiple
             collapse-tags
@@ -20,6 +21,7 @@
 
         <el-col :xs="24" :sm="8" :md="6" :lg="4" :xl="4">
           <el-select
+            filterable
             v-model="gamesVersionModel"
             multiple
             collapse-tags
@@ -35,6 +37,7 @@
 
         <el-col :xs="24" :sm="8" :md="6" :lg="4" :xl="4">
           <el-select
+            filterable
             v-model="gamesDeviceModel"
             multiple
             collapse-tags
@@ -50,6 +53,7 @@
 
         <el-col :xs="24" :sm="8" :md="6" :lg="4" :xl="4">
           <el-select
+            filterable
             v-model="gamesDeviceNameModel"
             multiple
             collapse-tags
@@ -65,6 +69,7 @@
 
         <el-col :xs="24" :sm="8" :md="6" :lg="4" :xl="4">
           <el-select
+            filterable
             v-model="gamesBranchModel"
             multiple
             collapse-tags

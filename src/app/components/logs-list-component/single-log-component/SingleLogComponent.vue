@@ -1,6 +1,13 @@
 <template>
-  <div :class="{is_odd: isOdd}"
-       class="list_item">
+  <div :class="{is_odd: isOdd, highlighted_log: isHighlighted}"
+       class="list_item" v-on:mouseover="onMouseoverHandler">
+    <el-button
+      @click="markerHandler"
+      type="primary"
+      plain
+      size="mini"
+      :icon="getMarkerProgressFlagGetter ? 'el-icon-edit': 'el-icon-plus'"
+    ></el-button>
     <span class="timestamp">
       {{log.timestamp | timistampFilter}}
     </span>
@@ -22,6 +29,8 @@
 </template>
 
 <script>
+  import {mapGetters, mapActions} from "vuex";
+  import {httpWrapper} from "Http/http-wrapper";
   import {
     TRACE_LOG_TYPE,
     DEBUG_LOG_TYPE,
@@ -36,14 +45,37 @@
     name: 'single-log',
     data() {
       return {
-        currentLog: null
+        currentLog: null,
+        highlightLogFlag: false,
+        currentSessionId: null
       }
     },
     props: {
       log: Object
     },
     mixins: [filtersMixin],
+    created() {
+      this.currentSessionId = this.$route.params.id;
+    },
     computed: {
+      ...mapGetters({
+        getMarkerProgressFlagGetter: 'getMarkerProgressFlagGetter',
+        getStartMarkingPosition: 'getStartMarkingPosition',
+        getEndMarkingPosition: 'getEndMarkingPosition',
+        getLogsFilterGetter: 'getLogsFilterGetter',
+        getSearchQueryString: 'getSearchQueryString'
+      }),
+      isHighlighted() {
+        const markerDraggedDown = this.getEndMarkingPosition <= this.getStartMarkingPosition
+          && this.log.seqNumber >= this.getEndMarkingPosition
+          && this.log.seqNumber <= this.getStartMarkingPosition;
+
+        const markerDraggedUp = this.getStartMarkingPosition <= this.getEndMarkingPosition
+          && this.log.seqNumber >= this.getStartMarkingPosition
+          && this.log.seqNumber <= this.getEndMarkingPosition;
+
+        return (markerDraggedDown || markerDraggedUp);
+      },
       isOdd() {
         return this.log.seqNumber % 2 === 0;
       },
@@ -65,6 +97,95 @@
       isFatal() {
         return this.log.level === FATAL_LOG_TYPE;
       }
+    },
+    methods: {
+      ...mapActions({
+        changeMarkerProgressState: 'changeMarkerProgressState',
+        setMarkerStartPosition: 'setMarkerStartPosition',
+        setMarkerEndPosition: 'setMarkerEndPosition',
+        addNewMarkerAction: 'addNewMarkerAction'
+      }),
+      formattedTimestamp(timestampData) {
+        return formattedTimestampUtil(timestampData);
+      },
+      onMouseoverHandler() {
+        if(!this.getMarkerProgressFlagGetter) return;
+        this.setMarkerEndPosition(this.log.seqNumber);
+      },
+      markerHandler() {
+        this.changeMarkerProgressState();
+
+        if(this.getMarkerProgressFlagGetter) {
+          this.setMarkerStartPosition(this.log.seqNumber);
+          this.setMarkerEndPosition(this.log.seqNumber);
+        } else {
+          this.openConfirm();
+        }
+      },
+      resetMarking() {
+        this.setMarkerStartPosition();
+        this.setMarkerEndPosition();
+      },
+      openConfirm() {
+        const confirmMessage = `This will save logs marker. Marker ${this.getStartMarkingPosition} - ${this.getEndMarkingPosition}`;
+        const confirmTitle = 'Save Logs Marker';
+        const confirmMessageConfig = {
+          confirmButtonText: 'OK',
+          cancelButtonText: 'Cancel',
+          type: 'success'
+        };
+
+        this.$confirm(confirmMessage, confirmTitle, confirmMessageConfig).then(() => {
+          this.saveNewMarker();
+        }).catch(() => {
+          this.fireDeclineMessage();
+        });
+      },
+      saveNewMarker() {
+        let markerData = this.buildMarkerData();
+
+        httpWrapper.postNewSessionMarker(markerData, this.currentSessionId, (savedMarkerData) => {
+          let saveMarkerActionData = {
+            sessionId: this.currentSessionId,
+            markerData: savedMarkerData
+          };
+          this.addNewMarkerAction(saveMarkerActionData);
+
+          this.fireSuccessMessage();
+          this.resetMarking();
+        });
+      },
+      buildMarkerData() {
+        let filtersData = [];
+
+        if(this.getLogsFilterGetter.length > 0) {
+          this.getLogsFilterGetter.map(filter => filtersData.push(filter));
+        }
+
+        return {
+          startPosition: this.getStartMarkingPosition,
+          endPosition: this.getEndMarkingPosition,
+          clientFilters: {
+            levels: filtersData,
+            searchQuery:this.getSearchQueryString
+          }
+        };
+      },
+      fireSuccessMessage() {
+        this.$message({
+          type: 'success',
+          showClose: true,
+          message: `Marker ${this.getStartMarkingPosition} - ${this.getEndMarkingPosition} saved`
+        });
+      },
+      fireDeclineMessage() {
+        this.$message({
+          type: 'info',
+          showClose: true,
+          message: `Saving marker ${this.getStartMarkingPosition} - ${this.getEndMarkingPosition} canceled`
+        });
+        this.resetMarking();
+      }
     }
   }
 </script>
@@ -74,20 +195,31 @@
 
   .list_item {
     display: inline-block;
+    position: relative;
     width: 100%;
     word-break: break-all;
-    -webkit-margin-before: 0.2em;
-    -webkit-margin-after: 0.2em;
+    padding: 5px 0;
     -webkit-margin-start: 0;
     -webkit-margin-end: 0;
     font-family: monospace;
     font-size: 14px;
     line-height: 22px;
-    border-radius: 3px;
+    &:hover .el-button {
+      opacity: 1;
+    }
+    .el-button {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+    }
   }
 
   .is_odd {
     background: #f9f9f9;
+  }
+  .highlighted_log {
+    background: lighten(#42A5F5, 30%);
   }
 
   .timestamp {
