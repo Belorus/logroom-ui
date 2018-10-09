@@ -52,20 +52,38 @@ const getters = {
   },
   getMarkerDataGetter: state => (markerId, sessionId) => {
     let markerData;
-    let dataToReturn;
+    let firstLogIndex;
+    let firstLogToDisplay;
+
     const sessionFound = state.sessions.find(session => session.id === sessionId);
+    if(!sessionFound) return;
 
-    if(sessionFound) {
-      markerData = sessionFound.markers.find(marker => marker.id === markerId);
+    markerData = sessionFound.markers.find(marker => marker.id === markerId);
+    if (!markerData) return;
 
-      let firstLogToDisplay = markerData.startPosition > markerData.endPosition
+    calculateFirstLogToDisplay(markerData);
+    findFirstLogIndex(markerData.clientFilters.levels);
+
+    return combinedGetterData();
+
+    function calculateFirstLogToDisplay(markerData) {
+      firstLogToDisplay = markerData.startPosition > markerData.endPosition
         ? markerData.startPosition
         : markerData.endPosition;
-      let firstLogIndex = state.sessionLogs.map(log => log.seqNumber).indexOf(firstLogToDisplay);
-
-      dataToReturn = Object.assign({}, markerData, {firstLogIndex: firstLogIndex});
     }
-    return dataToReturn;
+
+    function findFirstLogIndex(levelsMarkerData) {
+      if (levelsMarkerData.length > 0) {
+        let filteredLogs = state.sessionLogs.filter(log => levelsMarkerData.includes(log.level));
+        firstLogIndex = filteredLogs.map(log => log.seqNumber).indexOf(firstLogToDisplay);
+      } else {
+        firstLogIndex = state.sessionLogs.map(log => log.seqNumber).indexOf(firstLogToDisplay);
+      }
+    }
+
+    function combinedGetterData() {
+      return Object.assign({}, markerData, {firstLogIndex: firstLogIndex});
+    }
   }
 };
 

@@ -243,9 +243,8 @@
       },
       getLogsByFilter() {
         this.logsArray = [];
-        this.frameStartIndex = 0;
         this.instantSearchModel = '';
-        this.logsArray = this.getSessionLogsByFrameIndexes(0, DISPLAYED_LOGS_LIMIT);
+        this.logsArray = this.getSessionLogsByFrameIndexes(this.frameStartIndex, this.frameStartIndex + DISPLAYED_LOGS_LIMIT);
       },
       getAllSessionLogs(logsReceived) {
         httpWrapper.getSessionDetailsHttp(this.currentSessionId, (sessionData) => {
@@ -312,6 +311,7 @@
         font-weight: bold;
         img {
           width: 100%;
+          max-width: 800px;
         }
       }
     }
