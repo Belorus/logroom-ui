@@ -1,18 +1,13 @@
 <template>
   <div class="main_container">
     <router-view></router-view>
-    <footer-component></footer-component>
   </div>
 </template>
 
 <script>
   import {mapActions} from "vuex";
-  import FooterComponent from "Components/footer-component/FooterComponent"
 
   export default {
-    components: {
-      'footer-component': FooterComponent
-    },
     sockets: {
       connect: function () {
         console.log('socket connected');

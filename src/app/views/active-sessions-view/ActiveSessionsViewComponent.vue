@@ -257,11 +257,6 @@
 </script>
 
 <style lang="scss" scoped>
-  @import "../../../assets/styles/variables";
-
-  .sessions_container {
-    padding-bottom: $footer-height;
-  }
 
   .filters_block {
     margin-bottom: 20px;

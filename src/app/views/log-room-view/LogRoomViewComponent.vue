@@ -292,7 +292,7 @@
     @include display-flex;
     top: $header-height;
     right: 0;
-    bottom: $footer-height;
+    bottom: 0;
     left: 0;
   }
 
