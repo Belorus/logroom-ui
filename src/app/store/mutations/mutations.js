@@ -104,8 +104,6 @@ const mutations = {
       catch (e) {
         isRegularExpression = false;
       }
-
-      console.log('used regular', isRegularExpression);
       
       return logs.filter(log => {
         if (backwardTyping && !state.logsDisplayFilters.includes(log.level)) {

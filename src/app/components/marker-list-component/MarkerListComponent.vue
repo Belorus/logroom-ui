@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="sessionMarkers.length > 0">
     <h4 class="markers_title">Saved Markers</h4>
     <div class="markers_container">
       <div class="session_marker"

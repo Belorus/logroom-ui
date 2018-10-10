@@ -9,13 +9,18 @@
       </el-button>
     </div>
     <div class="logo">Log Room</div>
+    <contacts-component></contacts-component>
   </div>
 </template>
 
 <script>
   import {ACTIVE_SESSIONS_PAGE} from "../../router/pages";
+  import ContactsComponent from "Components/contacts-component/ContactsComponent";
 
   export default {
+    components: {
+      'contacts-component': ContactsComponent
+    },
     methods: {
       navToActiveSessions() {
         this.$router.push({name: ACTIVE_SESSIONS_PAGE});

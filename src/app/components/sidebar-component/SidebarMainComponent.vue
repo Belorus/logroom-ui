@@ -67,8 +67,30 @@
     },
     computed: {
       ...mapGetters({
-        getLogsFilterGetter: 'getLogsFilterGetter'
-      })
+        getLogsFilterGetter: 'getLogsFilterGetter',
+        getMarkerDataGetter: 'getMarkerDataGetter'
+      }),
+      markerSelection() {
+        return this.$route.query.markerId
+      },
+      getDataMarkerLevelsUrl() {
+        let markerData = this.getMarkerDataGetter(this.$route.query.markerId, this.currentSessionId);
+        if(!markerData) return;
+
+        return markerData.clientFilters.levels.length > 0 ? markerData.clientFilters.levels : false;
+      }
+    },
+    watch: {
+      markerSelection: function (markerId) {
+        markerId
+          ? this.applyFiltersByMarker(markerId)
+          : this.uncheckAllFilters();
+      },
+      getDataMarkerLevelsUrl: function (markerLevelsData) {
+        if(markerLevelsData) {
+          this.updateCheckedFilters(markerLevelsData);
+        }
+      }
     },
     methods: {
       ...mapActions({
@@ -110,6 +132,18 @@
           message: 'Session link copied to clipboard.',
           type: 'success'
         });
+      },
+      applyFiltersByMarker(markerId) {
+        let fullMarkerData = this.getMarkerDataGetter(markerId, this.currentSessionId);
+        if(fullMarkerData && fullMarkerData.clientFilters.levels.length > 0) {
+          this.updateCheckedFilters(fullMarkerData.clientFilters.levels);
+        }
+      },
+      updateCheckedFilters(markerLevelsData) {
+        let selectedFilters = [];
+        this.checkedFilters = markerLevelsData;
+        this.checkedFilters.map(filterValue => selectedFilters.push(filterValue));
+        this.setLogsFilters(selectedFilters);
       }
     }
   }
